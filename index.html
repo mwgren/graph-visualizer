@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Räta linjens ekvation – intercept och lutning</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22263a;
+      --border:    #2e3350;
+      --text:      #eef0f8;
+      --muted:     #8b90b0;
+      --teal:      #38e8c8;
+      --teal-dim:  rgba(56,232,200,0.10);
+      --purple:    #a78bfa;
+      --purple-dim:rgba(167,139,250,0.10);
+      --orange:    #ff8c42;
+      --orange-dim:#3a2210;
+      --yellow:    #ffd166;
+      --pink:      #f472b6;
+      --data-col:  #f472b6;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Nunito Sans',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.65;
+      padding:1.5rem 1rem 3rem;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;
+      background-image:radial-gradient(circle,#2e3350 1px,transparent 1px);
+      background-size:28px 28px;opacity:.4;pointer-events:none;z-index:0;
+    }
+    .container{max-width:780px;margin:0 auto;position:relative;z-index:1;}
+
+    /* ── HEADER ── */
+    header{
+      text-align:center;margin-bottom:2rem;
+      padding:2rem 1.5rem 1.75rem;
+      background:linear-gradient(135deg,#1a1d27 0%,#22263a 100%);
+      border:1px solid var(--border);border-radius:16px;
+      position:relative;overflow:hidden;
+    }
+    header::after{
+      content:'';position:absolute;top:-40px;right:-40px;
+      width:160px;height:160px;
+      background:radial-gradient(circle,rgba(56,232,200,.12) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .header-emoji{font-size:2.4rem;margin-bottom:.4rem;display:block;}
+    h1{font-family:'Nunito',sans-serif;font-size:1.65rem;font-weight:900;line-height:1.2;margin-bottom:.5rem;}
+    h1 span{color:var(--teal);}
+    .header-sub{font-size:.95rem;color:var(--muted);}
+
+    /* ── FORMULA CARD ── */
+    .formula-card{
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:12px;padding:1.25rem 1.4rem;margin-bottom:1.75rem;
+    }
+    .big-formula{
+      font-family:'Nunito',sans-serif;font-size:1.55rem;font-weight:900;
+      color:var(--teal);text-align:center;margin-bottom:1rem;
+    }
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+    @media(max-width:480px){.two-col{grid-template-columns:1fr;}}
+    .param-box{border-radius:10px;padding:.85rem 1rem;display:flex;gap:.75rem;align-items:flex-start;}
+    .param-box.alpha{background:var(--teal-dim);border:1px solid rgba(56,232,200,.25);}
+    .param-box.beta {background:var(--purple-dim);border:1px solid rgba(167,139,250,.25);}
+    .param-letter{font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;line-height:1;margin-top:2px;}
+    .alpha .param-letter{color:var(--teal);}
+    .beta  .param-letter{color:var(--purple);}
+    .param-text strong{display:block;font-size:.88rem;font-weight:700;margin-bottom:.15rem;}
+    .alpha .param-text strong{color:var(--teal);}
+    .beta  .param-text strong{color:var(--purple);}
+    .param-text p{font-size:.85rem;color:var(--muted);line-height:1.45;}
+
+    /* ── STEPS ── */
+    .step{margin-bottom:1.25rem;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+    .step-header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.2rem;cursor:pointer;user-select:none;}
+    .step-1 .step-header{background:linear-gradient(90deg,rgba(56,232,200,.18) 0%,rgba(56,232,200,.06) 100%);}
+    .step-2 .step-header{background:linear-gradient(90deg,rgba(167,139,250,.18) 0%,rgba(167,139,250,.06) 100%);}
+    .step-3 .step-header{background:linear-gradient(90deg,rgba(255,140,66,.18) 0%,rgba(255,140,66,.06) 100%);}
+    .step-badge{font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .6rem;border-radius:20px;white-space:nowrap;}
+    .step-1 .step-badge{background:rgba(56,232,200,.2);color:var(--teal);}
+    .step-2 .step-badge{background:rgba(167,139,250,.2);color:var(--purple);}
+    .step-3 .step-badge{background:rgba(255,140,66,.2);color:var(--orange);}
+    .step-title{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;flex:1;}
+    .step-arrow{color:var(--muted);font-size:.8rem;transition:transform .2s;}
+    .step.open .step-arrow{transform:rotate(90deg);}
+    .step-body{display:none;padding:1rem 1.2rem 1.1rem;background:var(--surface);font-size:.93rem;}
+    .step.open .step-body{display:block;}
+    .step-body p{margin-bottom:.6rem;}
+    .step-body p:last-child{margin-bottom:0;}
+    .step-body ul{padding-left:1.3rem;margin:.3rem 0 .6rem;}
+    .step-body ul li{margin-bottom:.3rem;}
+    .hl  {font-weight:700;}
+    .hl-t{color:var(--teal);font-weight:700;}
+    .hl-p{color:var(--purple);font-weight:700;}
+    .hl-o{color:var(--orange);font-weight:700;}
+    .hl-y{color:var(--yellow);font-weight:700;}
+    .calc-box{background:var(--surface2);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.88rem;color:var(--muted);}
+    .calc-box .result{color:var(--teal);font-weight:700;}
+
+    /* ── INTERACTIVE ZONE ── */
+    .interactive-zone{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-top:1.5rem;}
+    .zone-title{font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+
+    .checkboxes{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.1rem;}
+    .check-label{display:flex;align-items:center;gap:.5rem;background:var(--orange-dim);border:1px solid rgba(255,140,66,.3);border-radius:8px;padding:.45rem .9rem;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--orange);user-select:none;}
+    .check-label input{width:15px;height:15px;accent-color:var(--orange);cursor:pointer;}
+
+    .sliders-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;}
+    @media(max-width:480px){.sliders-row{grid-template-columns:1fr;}}
+    .slider-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;}
+    .slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.2rem;}
+    .slider-name{font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;}
+    .s-intercept .slider-name{color:var(--teal);}
+    .s-slope     .slider-name{color:var(--purple);}
+    .slider-num{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;}
+    .s-intercept .slider-num{color:var(--teal);}
+    .s-slope     .slider-num{color:var(--purple);}
+    .slider-hint{font-size:.78rem;color:var(--muted);margin-bottom:.55rem;}
+
+    input[type="range"]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;}
+    input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;border:2.5px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .1s;}
+    input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+    #interceptSlider::-webkit-slider-thumb{background:var(--teal);}
+    #slopeSlider::-webkit-slider-thumb{background:var(--purple);}
+
+    .eq-display{text-align:center;margin-bottom:1rem;}
+    .eq-box{display:inline-block;font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:var(--teal);background:rgba(56,232,200,.08);border:2px solid rgba(56,232,200,.35);border-radius:10px;padding:.4rem 1.4rem;}
+
+    .graph-wrap{background:#10131e;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1rem;}
+    svg{display:block;width:100%;height:auto;}
+
+    /* ── FIT FEEDBACK ── */
+    .fit-bar{
+      display:flex;align-items:center;gap:.75rem;
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;
+      font-size:.88rem;
+    }
+    .fit-label{color:var(--muted);font-weight:600;white-space:nowrap;}
+    .fit-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .fit-fill{height:100%;border-radius:4px;transition:width .3s,background .3s;}
+    .fit-score{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;min-width:3rem;text-align:right;}
+    .fit-msg{font-size:.82rem;color:var(--muted);white-space:nowrap;}
+
+    /* ── DATA TABLE SECTION ── */
+    .data-section{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:16px;padding:1.4rem;margin-top:1.5rem;
+    }
+    .data-section .zone-title{margin-bottom:.6rem;}
+
+    .data-hint{font-size:.84rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;}
+    .data-hint strong{color:var(--text);}
+
+    /* Column name inputs */
+    .col-names{display:grid;grid-template-columns:1fr 1fr auto;gap:.5rem;margin-bottom:.75rem;align-items:end;}
+    @media(max-width:480px){.col-names{grid-template-columns:1fr 1fr;}}
+    .col-name-wrap{display:flex;flex-direction:column;gap:.25rem;}
+    .col-name-wrap label{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+    .col-name-wrap.x-col label{color:var(--teal);}
+    .col-name-wrap.y-col label{color:var(--pink);}
+    .col-name-input{
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:7px;padding:.4rem .65rem;
+      font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:700;
+      color:var(--text);outline:none;width:100%;
+      transition:border-color .15s;
+    }
+    .col-name-wrap.x-col .col-name-input:focus{border-color:var(--teal);}
+    .col-name-wrap.y-col .col-name-input:focus{border-color:var(--pink);}
+
+    /* Paste zone */
+    .paste-zone{
+      background:var(--surface2);border:1.5px dashed var(--border);
+      border-radius:10px;padding:.75rem 1rem;margin-bottom:.75rem;
+      font-size:.84rem;color:var(--muted);
+      cursor:text;transition:border-color .15s;
+      min-height:2.8rem;
+      position:relative;
+    }
+    .paste-zone:focus-within{border-color:var(--purple);}
+    .paste-zone textarea{
+      width:100%;background:transparent;border:none;outline:none;
+      font-family:'Nunito Sans',sans-serif;font-size:.84rem;color:var(--text);
+      resize:none;min-height:2rem;
+    }
+    .paste-zone .paste-icon{position:absolute;right:.8rem;top:.7rem;font-size:1rem;opacity:.4;}
+
+    /* Table */
+    .table-scroll{overflow-x:auto;margin-bottom:.75rem;}
+    table{width:100%;border-collapse:collapse;font-size:.9rem;}
+    thead th{
+      padding:.5rem .75rem;text-align:center;font-family:'Nunito',sans-serif;
+      font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;
+      border-bottom:1px solid var(--border);
+    }
+    th.th-x{color:var(--teal);}
+    th.th-y{color:var(--pink);}
+    th.th-del{color:var(--muted);width:2rem;}
+    tbody tr:hover td{background:rgba(255,255,255,.03);}
+    tbody td{padding:.3rem .4rem;text-align:center;border-bottom:1px solid rgba(46,51,80,.5);}
+    tbody td input{
+      width:100%;background:transparent;border:1px solid transparent;
+      border-radius:5px;padding:.3rem .5rem;text-align:center;
+      font-family:'Nunito Sans',sans-serif;font-size:.9rem;color:var(--text);
+      outline:none;transition:border-color .15s,background .15s;
+    }
+    tbody td input:focus{border-color:var(--border);background:var(--surface2);}
+    .td-x input:focus{border-color:rgba(56,232,200,.4);}
+    .td-y input:focus{border-color:rgba(244,114,182,.4);}
+    .del-btn{
+      background:none;border:none;cursor:pointer;
+      color:var(--muted);font-size:1rem;padding:.2rem .4rem;
+      border-radius:4px;transition:color .15s,background .15s;
+    }
+    .del-btn:hover{color:#f87171;background:rgba(248,113,113,.1);}
+
+    .table-actions{display:flex;gap:.6rem;flex-wrap:wrap;}
+    .btn{
+      font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;
+      border:none;border-radius:8px;padding:.45rem 1rem;cursor:pointer;
+      transition:opacity .15s,transform .1s;
+    }
+    .btn:hover{opacity:.85;}
+    .btn:active{transform:scale(.97);}
+    .btn-add{background:rgba(56,232,200,.15);color:var(--teal);}
+    .btn-clear{background:rgba(248,113,113,.1);color:#f87171;}
+    .btn-plot{background:var(--pink);color:#fff;}
+
+    .note{margin-top:1rem;padding:.85rem 1rem;background:var(--surface2);border-radius:8px;font-size:.83rem;color:var(--muted);line-height:1.55;}
+    .note strong{color:var(--text);}
+
+    @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.07);}100%{transform:scale(1);}}
+    .eq-box.pop{animation:pop .22s ease-out;}
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <span class="header-emoji">📈</span>
+    <h1>Räta linjens ekvation:<br><span>intercept &amp; lutning</span></h1>
+    <p class="header-sub">Lägg in datapunkter och anpassa linjen så att den passar så bra som möjligt!</p>
+  </header>
+
+  <!-- Formula -->
+  <div class="formula-card">
+    <div class="big-formula">Y = α + β · X</div>
+    <div class="two-col">
+      <div class="param-box alpha">
+        <div class="param-letter">α</div>
+        <div class="param-text">
+          <strong>alfa = interceptet</strong>
+          <p>Värdet på Y när X är 0 — bestämmer linjens vertikala startläge.</p>
+        </div>
+      </div>
+      <div class="param-box beta">
+        <div class="param-letter">β</div>
+        <div class="param-text">
+          <strong>beta = lutningen</strong>
+          <p>Hur brant linjen är — hur mycket Y ändras när X ökar med 1.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="step step-1 open">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-badge">Steg 1</span>
+      <span class="step-title">Hitta interceptet och lutningen i grafen</span>
+      <span class="step-arrow">▶</span>
+    </div>
+    <div class="step-body">
+      <p>Grafen visar linjen <span class="hl-t">Y = 1 + 2X</span>. Vi kontrollerar att interceptet är 1 och lutningen är 2.</p>
+      <p><span class="hl">Kontrollera interceptet:</span> Hitta X = 0 på x-axeln — linjen passerar punkten (0, 1). Det visar att interceptet = 1. ✓<br>
+      <em style="font-size:.85rem;color:var(--muted)">Tips: Klicka i "Visa punkt vid X=0" för att se den orange cirkeln.</em></p>
+      <p><span class="hl">Kontrollera lutningen</span> med punkterna (0, 1) och (2, 5):</p>
+      <div class="calc-box">
+        höjning = ΔY = 5 − 1 = 4<br>
+        horisontell förflyttning = ΔX = 2 − 0 = 2<br>
+        <span class="result">lutning = 4 ÷ 2 = 2 ✓</span><br>
+        <em>När X ökar med 1 ökar Y med 2.</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="step step-2">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-badge">Steg 2</span>
+      <span class="step-title">Ändra interceptet — linjen glider upp eller ner</span>
+      <span class="step-arrow">▶</span>
+    </div>
+    <div class="step-body">
+      <p>Flytta <span class="hl-p">intercept-reglaget</span> — linjen förflyttas uppåt eller nedåt utan att lutnigen ändras.</p>
+      <p>Prova 1 → −1: båda punkterna rör sig 2 steg nedåt, men avståndet dem emellan är detsamma.</p>
+    </div>
+  </div>
+
+  <div class="step step-3">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-badge">Steg 3</span>
+      <span class="step-title">Ändra lutningen — linjen blir brantare eller flackare</span>
+      <span class="step-arrow">▶</span>
+    </div>
+    <div class="step-body">
+      <p>Håll interceptet på −1 och flytta <span class="hl-o">lutnings-reglaget</span>.</p>
+      <ul>
+        <li><span class="hl-t">Lutning = 1:</span> Flackare, men fortfarande uppåt. Y ökar med 1 per X-steg.</li>
+        <li><span class="hl-o">Negativ lutning (t.ex. −2):</span> Linjen går neråt. Y <em>minskar</em> med 2 per X-steg.</li>
+        <li><span class="hl-y">Lutning = 0:</span> Vågrätt — X påverkar inte Y alls.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Interactive graph -->
+  <div class="interactive-zone">
+    <div class="zone-title">🎛️ Justera linjen</div>
+
+    <div class="checkboxes">
+      <label class="check-label"><input type="checkbox" id="showCircle"> Visa punkt vid X=0 ●</label>
+      <label class="check-label"><input type="checkbox" id="showTriangle"> Visa punkt vid X=2 ▲</label>
+    </div>
+
+    <div class="sliders-row">
+      <div class="slider-card s-intercept">
+        <div class="slider-top">
+          <span class="slider-name">α Intercept</span>
+          <span class="slider-num" id="interceptVal">1</span>
+        </div>
+        <div class="slider-hint">Förflyttar linjen upp/ned</div>
+        <input type="range" id="interceptSlider" min="-10" max="10" step="0.5" value="1">
+      </div>
+      <div class="slider-card s-slope">
+        <div class="slider-top">
+          <span class="slider-name">β Lutning</span>
+          <span class="slider-num" id="slopeVal">2</span>
+        </div>
+        <div class="slider-hint">Ändrar linjens branthet</div>
+        <input type="range" id="slopeSlider" min="-5" max="5" step="0.25" value="2">
+      </div>
+    </div>
+
+    <div class="eq-display">
+      <span class="eq-box" id="equationDisplay">Y = 1 + 2X</span>
+    </div>
+
+    <!-- Fit feedback (hidden until data exists) -->
+    <div class="fit-bar" id="fitBar" style="display:none">
+      <span class="fit-label">Passning:</span>
+      <div class="fit-track"><div class="fit-fill" id="fitFill"></div></div>
+      <span class="fit-score" id="fitScore"></span>
+      <span class="fit-msg" id="fitMsg"></span>
+    </div>
+
+    <div class="graph-wrap">
+      <svg id="graph" viewBox="0 0 560 380" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <div class="note">
+      <strong>Kom ihåg:</strong> Varje punkt har koordinaterna (X, Y). Punkten (0, 1) ligger vid X = 0 och Y = 1.
+    </div>
+  </div>
+
+  <!-- Data table section -->
+  <div class="data-section">
+    <div class="zone-title">📊 Lägg in dina datapunkter</div>
+
+    <p class="data-hint">
+      <strong>Skriv in värden</strong> direkt i tabellen, eller <strong>klistra in från Excel/Calc</strong> — markera två kolumner och klistra in nedan. Du kan också namnge dina variabler.
+    </p>
+
+    <div class="col-names">
+      <div class="col-name-wrap x-col">
+        <label>X-variabel</label>
+        <input class="col-name-input" id="xName" type="text" value="X" placeholder="t.ex. Ålder">
+      </div>
+      <div class="col-name-wrap y-col">
+        <label>Y-variabel</label>
+        <input class="col-name-input" id="yName" type="text" value="Y" placeholder="t.ex. Längd">
+      </div>
+    </div>
+
+    <div class="paste-zone" title="Klistra in data från Excel här">
+      <textarea id="pasteArea" rows="2" placeholder="Klistra in data från Excel här (två kolumner, en rad per datapunkt)…"></textarea>
+      <span class="paste-icon">📋</span>
+    </div>
+
+    <div class="table-scroll">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th class="th-x" id="thX">X</th>
+            <th class="th-y" id="thY">Y</th>
+            <th class="th-del"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="table-actions">
+      <button class="btn btn-add" onclick="addRow()">+ Lägg till rad</button>
+      <button class="btn btn-clear" onclick="clearData()">Rensa alla</button>
+      <button class="btn btn-plot" onclick="plotData()">Plotta datapunkter →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA MANAGEMENT
+═══════════════════════════════════════════════ */
+let dataPoints = []; // [{x, y}]
+
+function addRow(xVal='', yVal='') {
+  const tbody = document.getElementById('tableBody');
+  const tr = document.createElement('tr');
+  const id = Date.now() + Math.random();
+  tr.dataset.id = id;
+  tr.innerHTML = `
+    <td class="td-x"><input type="number" step="any" value="${xVal}" placeholder="0" oninput="scheduleReplot()"></td>
+    <td class="td-y"><input type="number" step="any" value="${yVal}" placeholder="0" oninput="scheduleReplot()"></td>
+    <td><button class="del-btn" onclick="deleteRow(this)" title="Ta bort">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function deleteRow(btn) {
+  btn.closest('tr').remove();
+  scheduleReplot();
+}
+
+function clearData() {
+  document.getElementById('tableBody').innerHTML = '';
+  dataPoints = [];
+  draw();
+}
+
+function readTable() {
+  const rows = document.querySelectorAll('#tableBody tr');
+  const pts = [];
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const x = parseFloat(inputs[0].value);
+    const y = parseFloat(inputs[1].value);
+    if (!isNaN(x) && !isNaN(y)) pts.push({x, y});
+  });
+  return pts;
+}
+
+function plotData() {
+  dataPoints = readTable();
+  // Auto-expand sliders if needed
+  if (dataPoints.length > 0) {
+    const xs = dataPoints.map(p=>p.x), ys = dataPoints.map(p=>p.y);
+    const xRange = Math.max(Math.abs(Math.min(...xs)), Math.abs(Math.max(...xs)));
+    const yRange = Math.max(Math.abs(Math.min(...ys)), Math.abs(Math.max(...ys)));
+    // Suggest auto-fit intercept/slope only on first plot
+    autoFitSuggestion(dataPoints);
+  }
+  draw();
+}
+
+let replotTimer = null;
+function scheduleReplot() {
+  clearTimeout(replotTimer);
+  replotTimer = setTimeout(() => {
+    if (dataPoints.length > 0) {
+      dataPoints = readTable();
+      draw();
+    }
+  }, 300);
+}
+
+/* Rough OLS suggestion — sets sliders to a reasonable starting point */
+function autoFitSuggestion(pts) {
+  if (pts.length < 2) return;
+  const n = pts.length;
+  const mx = pts.reduce((s,p)=>s+p.x,0)/n;
+  const my = pts.reduce((s,p)=>s+p.y,0)/n;
+  const num = pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0);
+  const den = pts.reduce((s,p)=>s+(p.x-mx)**2,0);
+  if (den === 0) return;
+  const b = num/den;
+  const a = my - b*mx;
+  // Clamp to slider range
+  const aC = Math.max(-10, Math.min(10, Math.round(a*2)/2));
+  const bC = Math.max(-5,  Math.min(5,  Math.round(b*4)/4));
+  document.getElementById('interceptSlider').value = aC;
+  document.getElementById('slopeSlider').value = bC;
+}
+
+/* ═══════════════════════════════════════════════
+   PASTE FROM EXCEL
+═══════════════════════════════════════════════ */
+document.getElementById('pasteArea').addEventListener('paste', function(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  parsePaste(text);
+  this.value = '';
+});
+document.getElementById('pasteArea').addEventListener('input', function() {
+  if (this.value.trim()) {
+    parsePaste(this.value);
+    this.value = '';
+  }
+});
+
+function parsePaste(text) {
+  const lines = text.trim().split(/\r?\n/);
+  let added = 0;
+  lines.forEach(line => {
+    if (!line.trim()) return;
+    const parts = line.split(/\t|;|,/);
+    if (parts.length >= 2) {
+      const x = parts[0].replace(',','.').trim();
+      const y = parts[1].replace(',','.').trim();
+      if (!isNaN(parseFloat(x)) && !isNaN(parseFloat(y))) {
+        addRow(parseFloat(x), parseFloat(y));
+        added++;
+      }
+    }
+  });
+  if (added > 0) plotData();
+}
+
+/* Column name sync */
+document.getElementById('xName').addEventListener('input', function() {
+  document.getElementById('thX').textContent = this.value || 'X';
+});
+document.getElementById('yName').addEventListener('input', function() {
+  document.getElementById('thY').textContent = this.value || 'Y';
+});
+
+/* Add a few blank rows on load */
+addRow(); addRow(); addRow(); addRow();
+
+/* ═══════════════════════════════════════════════
+   FIT QUALITY
+═══════════════════════════════════════════════ */
+function calcFit(pts, a, b) {
+  if (pts.length === 0) return null;
+  // Mean absolute error relative to y-range
+  const mae = pts.reduce((s,p) => s + Math.abs((a + b*p.x) - p.y), 0) / pts.length;
+  const yRange = Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y));
+  if (yRange === 0) return 100;
+  const score = Math.max(0, 100 - (mae/yRange)*100);
+  return score;
+}
+
+function updateFitBar(pts, a, b) {
+  const bar = document.getElementById('fitBar');
+  if (pts.length < 2) { bar.style.display='none'; return; }
+  bar.style.display = 'flex';
+  const score = calcFit(pts, a, b);
+  const fill  = document.getElementById('fitFill');
+  const scoreEl = document.getElementById('fitScore');
+  const msg   = document.getElementById('fitMsg');
+  const pct   = score.toFixed(0);
+  fill.style.width = pct + '%';
+  scoreEl.textContent = pct + '%';
+
+  let color, txt;
+  if (score >= 85)     { color='#38e8c8'; txt='🎉 Utmärkt passning!'; }
+  else if (score >= 65){ color='#ffd166'; txt='👍 Bra, fortsätt justera!'; }
+  else if (score >= 40){ color='#ff8c42'; txt='🔧 Fortfarande ganska långt ifrån…'; }
+  else                 { color='#f472b6'; txt='💡 Testa att flytta reglagen mer!'; }
+
+  fill.style.background = color;
+  scoreEl.style.color = color;
+  msg.textContent = txt;
+}
+
+/* ═══════════════════════════════════════════════
+   GRAPH
+═══════════════════════════════════════════════ */
+const SVG_W=560, SVG_H=380;
+const PAD={top:30,right:30,bottom:48,left:54};
+
+const iSlider   = document.getElementById('interceptSlider');
+const sSlider   = document.getElementById('slopeSlider');
+const iVal      = document.getElementById('interceptVal');
+const sVal      = document.getElementById('slopeVal');
+const eqBox     = document.getElementById('equationDisplay');
+const showCircle   = document.getElementById('showCircle');
+const showTriangle = document.getElementById('showTriangle');
+
+function getAxisRange() {
+  // Dynamic range based on data
+  if (dataPoints.length === 0) return {xMin:-6,xMax:6,yMin:-12,yMax:12};
+  const xs = dataPoints.map(p=>p.x), ys = dataPoints.map(p=>p.y);
+  const xPad = Math.max(2, (Math.max(...xs)-Math.min(...xs))*.25);
+  const yPad = Math.max(2, (Math.max(...ys)-Math.min(...ys))*.3);
+  return {
+    xMin: Math.floor(Math.min(-1,...xs)-xPad),
+    xMax: Math.ceil(Math.max(1,...xs)+xPad),
+    yMin: Math.floor(Math.min(-1,...ys)-yPad),
+    yMax: Math.ceil(Math.max(1,...ys)+yPad),
+  };
+}
+
+function draw() {
+  const a = parseFloat(iSlider.value);
+  const b = parseFloat(sSlider.value);
+  const {xMin,xMax,yMin,yMax} = getAxisRange();
+
+  const xS = x => PAD.left+(x-xMin)/(xMax-xMin)*(SVG_W-PAD.left-PAD.right);
+  const yS = y => SVG_H-PAD.bottom-(y-yMin)/(yMax-yMin)*(SVG_H-PAD.top-PAD.bottom);
+
+  const svg = document.getElementById('graph');
+  svg.innerHTML='';
+
+  function el(tag,attrs,text){
+    const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    if(attrs) for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    if(text!==undefined) e.textContent=text;
+    return e;
+  }
+
+  // clip
+  const defs=el('defs');
+  const clip=el('clipPath',{id:'gc'});
+  clip.appendChild(el('rect',{x:PAD.left,y:PAD.top,width:SVG_W-PAD.left-PAD.right,height:SVG_H-PAD.top-PAD.bottom}));
+  defs.appendChild(clip);
+  svg.appendChild(defs);
+
+  // grid
+  const xStep = niceStep(xMax-xMin, 8);
+  const yStep = niceStep(yMax-yMin, 8);
+  for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10))
+    svg.appendChild(el('line',{x1:xS(x),y1:PAD.top,x2:xS(x),y2:SVG_H-PAD.bottom,
+      stroke:Math.abs(x)<1e-9?'#3a4060':'#1e2235','stroke-width':Math.abs(x)<1e-9?1.5:1}));
+  for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y=+(y+yStep).toFixed(10))
+    svg.appendChild(el('line',{x1:PAD.left,y1:yS(y),x2:SVG_W-PAD.right,y2:yS(y),
+      stroke:Math.abs(y)<1e-9?'#3a4060':'#1e2235','stroke-width':Math.abs(y)<1e-9?1.5:1}));
+
+  // axes
+  if(yMin<=0 && yMax>=0)
+    svg.appendChild(el('line',{x1:PAD.left,y1:yS(0),x2:SVG_W-PAD.right,y2:yS(0),stroke:'#4a5070','stroke-width':1.5}));
+  if(xMin<=0 && xMax>=0)
+    svg.appendChild(el('line',{x1:xS(0),y1:PAD.top,x2:xS(0),y2:SVG_H-PAD.bottom,stroke:'#4a5070','stroke-width':1.5}));
+
+  // tick labels
+  for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10)) {
+    const xf=+x.toFixed(6);
+    if(Math.abs(xf)<xStep*0.01) continue;
+    svg.appendChild(el('line',{x1:xS(xf),y1:yS(0)-3,x2:xS(xf),y2:yS(0)+3,stroke:'#4a5070','stroke-width':1}));
+    svg.appendChild(el('text',{x:xS(xf),y:yS(0)+16,'text-anchor':'middle',
+      fill:'#5a6080','font-size':'10','font-family':'Nunito Sans,sans-serif'},fmtTick(xf)));
+  }
+  for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y=+(y+yStep).toFixed(10)) {
+    const yf=+y.toFixed(6);
+    if(Math.abs(yf)<yStep*0.01) continue;
+    svg.appendChild(el('line',{x1:xS(0)-3,y1:yS(yf),x2:xS(0)+3,y2:yS(yf),stroke:'#4a5070','stroke-width':1}));
+    svg.appendChild(el('text',{x:xS(0)-7,y:yS(yf)+4,'text-anchor':'end',
+      fill:'#5a6080','font-size':'10','font-family':'Nunito Sans,sans-serif'},fmtTick(yf)));
+  }
+
+  // axis names (use variable names if set)
+  const xName = document.getElementById('xName').value || 'X';
+  const yName = document.getElementById('yName').value || 'Y';
+  svg.appendChild(el('text',{x:SVG_W-PAD.right-2,y:yS(0)+16,'text-anchor':'end',
+    fill:'#6a70a0','font-size':'13','font-family':'Nunito,sans-serif','font-weight':'800','font-style':'italic'},xName));
+  svg.appendChild(el('text',{x:xS(0)+8,y:PAD.top+2,'text-anchor':'start',
+    fill:'#6a70a0','font-size':'13','font-family':'Nunito,sans-serif','font-weight':'800','font-style':'italic'},yName));
+
+  // Data points
+  dataPoints.forEach(p => {
+    if(p.x<xMin||p.x>xMax||p.y<yMin||p.y>yMax) return;
+    // Pink circle with glow
+    const g=el('g');
+    g.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'7',fill:'rgba(244,114,182,.2)'}));
+    g.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'4.5',fill:'#f472b6',stroke:'#10131e','stroke-width':'1.5'}));
+    svg.appendChild(g);
+  });
+
+  // Main line
+  svg.appendChild(el('line',{
+    x1:xS(xMin),y1:yS(a+b*xMin),x2:xS(xMax),y2:yS(a+b*xMax),
+    stroke:'#38e8c8','stroke-width':'2.5','stroke-linecap':'round','clip-path':'url(#gc)'
+  }));
+
+  // Residual lines (if data)
+  if(dataPoints.length>0) {
+    dataPoints.forEach(p=>{
+      if(p.x<xMin||p.x>xMax) return;
+      const yHat=a+b*p.x;
+      svg.appendChild(el('line',{
+        x1:xS(p.x),y1:yS(p.y),x2:xS(p.x),y2:yS(yHat),
+        stroke:'rgba(244,114,182,.35)','stroke-width':'1.5','stroke-dasharray':'3,3','clip-path':'url(#gc)'
+      }));
+    });
+  }
+
+  // Point X=0
+  if(showCircle.checked) {
+    const py=a;
+    if(py>=yMin&&py<=yMax&&0>=xMin&&0<=xMax) {
+      svg.appendChild(el('circle',{cx:xS(0),cy:yS(py),r:'8',fill:'#ff8c42',stroke:'#10131e','stroke-width':'2.5'}));
+      const lx=xS(0)>SVG_W/2?xS(0)-12:xS(0)+12;
+      const anchor=xS(0)>SVG_W/2?'end':'start';
+      svg.appendChild(el('text',{x:lx,y:yS(py)-10,'text-anchor':anchor,
+        fill:'#ff8c42','font-size':'12','font-family':'Nunito,sans-serif','font-weight':'800'},`(0, ${fmt(py)})`));
+    }
+  }
+
+  // Point X=2
+  if(showTriangle.checked) {
+    const py=a+b*2;
+    if(py>=yMin&&py<=yMax&&2>=xMin&&2<=xMax) {
+      const cx=xS(2),cy=yS(py),s=9;
+      svg.appendChild(el('polygon',{
+        points:`${cx},${cy-s} ${cx-s},${cy+s*.75} ${cx+s},${cy+s*.75}`,
+        fill:'#ff8c42',stroke:'#10131e','stroke-width':'2.5'
+      }));
+      const lx=xS(2)>SVG_W/2?xS(2)-12:xS(2)+12;
+      const anchor=xS(2)>SVG_W/2?'end':'start';
+      svg.appendChild(el('text',{x:lx,y:yS(py)-12,'text-anchor':anchor,
+        fill:'#ff8c42','font-size':'12','font-family':'Nunito,sans-serif','font-weight':'800'},`(2, ${fmt(py)})`));
+    }
+  }
+
+  // UI update
+  iVal.textContent=fmt(a);
+  sVal.textContent=fmt(b);
+  const eq=formatEq(a,b);
+  if(eqBox.textContent!==eq){
+    eqBox.textContent=eq;
+    eqBox.classList.remove('pop');
+    void eqBox.offsetWidth;
+    eqBox.classList.add('pop');
+  }
+  updateSliderBg(iSlider,'#38e8c8');
+  updateSliderBg(sSlider,'#a78bfa');
+  updateFitBar(dataPoints,a,b);
+}
+
+function fmt(n){ return n%1===0?String(n):n.toFixed(2).replace(/\.?0+$/,''); }
+function fmtTick(n){ return n%1===0?String(n):n.toFixed(1); }
+
+function formatEq(a,b){
+  const aS=fmt(a),bA=Math.abs(b),bS=fmt(bA);
+  if(b===0) return `Y = ${aS}`;
+  const sign=b>0?'+':'−';
+  if(bA===1) return `Y = ${aS} ${sign} X`;
+  return `Y = ${aS} ${sign} ${bS}X`;
+}
+
+function updateSliderBg(slider,color){
+  const pct=(parseFloat(slider.value)-parseFloat(slider.min))/(parseFloat(slider.max)-parseFloat(slider.min))*100;
+  slider.style.background=`linear-gradient(to right,${color} 0%,${color} ${pct}%,#2e3350 ${pct}%)`;
+}
+
+function niceStep(range,maxTicks){
+  const raw=range/maxTicks;
+  const mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const norm=raw/mag;
+  let nice;
+  if(norm<1.5) nice=1;
+  else if(norm<3.5) nice=2;
+  else if(norm<7.5) nice=5;
+  else nice=10;
+  return nice*mag;
+}
+
+function toggleStep(header){ header.parentElement.classList.toggle('open'); }
+
+iSlider.addEventListener('input',draw);
+sSlider.addEventListener('input',draw);
+showCircle.addEventListener('change',draw);
+showTriangle.addEventListener('change',draw);
+document.getElementById('xName').addEventListener('input',draw);
+document.getElementById('yName').addEventListener('input',draw);
+draw();
+</script>
+</body>
+</html>
