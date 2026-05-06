@@ -1,786 +1,1551 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Räta linjens ekvation – intercept och lutning</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg:        #0f1117;
-      --surface:   #1a1d27;
-      --surface2:  #22263a;
-      --border:    #2e3350;
-      --text:      #eef0f8;
-      --muted:     #8b90b0;
-      --teal:      #38e8c8;
-      --teal-dim:  rgba(56,232,200,0.10);
-      --purple:    #a78bfa;
-      --purple-dim:rgba(167,139,250,0.10);
-      --orange:    #ff8c42;
-      --orange-dim:#3a2210;
-      --yellow:    #ffd166;
-      --pink:      #f472b6;
-      --data-col:  #f472b6;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      font-family:'Nunito Sans',sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      line-height:1.65;
-      padding:1.5rem 1rem 3rem;
-    }
-    body::before{
-      content:'';position:fixed;inset:0;
-      background-image:radial-gradient(circle,#2e3350 1px,transparent 1px);
-      background-size:28px 28px;opacity:.4;pointer-events:none;z-index:0;
-    }
-    .container{max-width:780px;margin:0 auto;position:relative;z-index:1;}
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Räta linjens ekvation</title>
+ <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+ <style>
+ :root {
+ --bg: #f5f3ef;
+ --surface: #ffffff;
+ --surface2: #f0ede8;
+ --border: #ddd9d2;
+ --border2: #c8c3bb;
+ --text: #1a1714;
+ --muted: #7a7570;
+ --teal: #0a7c6e;
+ --teal-light: #e6f4f2;
+ --teal-mid: #b2ddd8;
+ --purple: #6346b0;
+ --purple-light:#ede8fa;
+ --purple-mid: #c4b5f0;
+ --orange: #c45f18;
+ --orange-light:#faeee4;
+ --pink: #b5366a;
+ --pink-light: #fce8f1;
+ --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+ --shadow: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+ --radius: 12px;
+ }
 
-    /* ── HEADER ── */
-    header{
-      text-align:center;margin-bottom:2rem;
-      padding:2rem 1.5rem 1.75rem;
-      background:linear-gradient(135deg,#1a1d27 0%,#22263a 100%);
-      border:1px solid var(--border);border-radius:16px;
-      position:relative;overflow:hidden;
-    }
-    header::after{
-      content:'';position:absolute;top:-40px;right:-40px;
-      width:160px;height:160px;
-      background:radial-gradient(circle,rgba(56,232,200,.12) 0%,transparent 70%);
-      pointer-events:none;
-    }
-    .header-emoji{font-size:2.4rem;margin-bottom:.4rem;display:block;}
-    h1{font-family:'Nunito',sans-serif;font-size:1.65rem;font-weight:900;line-height:1.2;margin-bottom:.5rem;}
-    h1 span{color:var(--teal);}
-    .header-sub{font-size:.95rem;color:var(--muted);}
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── FORMULA CARD ── */
-    .formula-card{
-      background:var(--surface2);border:1px solid var(--border);
-      border-radius:12px;padding:1.25rem 1.4rem;margin-bottom:1.75rem;
-    }
-    .big-formula{
-      font-family:'Nunito',sans-serif;font-size:1.55rem;font-weight:900;
-      color:var(--teal);text-align:center;margin-bottom:1rem;
-    }
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
-    @media(max-width:480px){.two-col{grid-template-columns:1fr;}}
-    .param-box{border-radius:10px;padding:.85rem 1rem;display:flex;gap:.75rem;align-items:flex-start;}
-    .param-box.alpha{background:var(--teal-dim);border:1px solid rgba(56,232,200,.25);}
-    .param-box.beta {background:var(--purple-dim);border:1px solid rgba(167,139,250,.25);}
-    .param-letter{font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;line-height:1;margin-top:2px;}
-    .alpha .param-letter{color:var(--teal);}
-    .beta  .param-letter{color:var(--purple);}
-    .param-text strong{display:block;font-size:.88rem;font-weight:700;margin-bottom:.15rem;}
-    .alpha .param-text strong{color:var(--teal);}
-    .beta  .param-text strong{color:var(--purple);}
-    .param-text p{font-size:.85rem;color:var(--muted);line-height:1.45;}
+ body {
+ font-family: 'DM Sans', sans-serif;
+ background: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 1.5rem 1rem 4rem;
+ }
 
-    /* ── STEPS ── */
-    .step{margin-bottom:1.25rem;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
-    .step-header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.2rem;cursor:pointer;user-select:none;}
-    .step-1 .step-header{background:linear-gradient(90deg,rgba(56,232,200,.18) 0%,rgba(56,232,200,.06) 100%);}
-    .step-2 .step-header{background:linear-gradient(90deg,rgba(167,139,250,.18) 0%,rgba(167,139,250,.06) 100%);}
-    .step-3 .step-header{background:linear-gradient(90deg,rgba(255,140,66,.18) 0%,rgba(255,140,66,.06) 100%);}
-    .step-badge{font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .6rem;border-radius:20px;white-space:nowrap;}
-    .step-1 .step-badge{background:rgba(56,232,200,.2);color:var(--teal);}
-    .step-2 .step-badge{background:rgba(167,139,250,.2);color:var(--purple);}
-    .step-3 .step-badge{background:rgba(255,140,66,.2);color:var(--orange);}
-    .step-title{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;flex:1;}
-    .step-arrow{color:var(--muted);font-size:.8rem;transition:transform .2s;}
-    .step.open .step-arrow{transform:rotate(90deg);}
-    .step-body{display:none;padding:1rem 1.2rem 1.1rem;background:var(--surface);font-size:.93rem;}
-    .step.open .step-body{display:block;}
-    .step-body p{margin-bottom:.6rem;}
-    .step-body p:last-child{margin-bottom:0;}
-    .step-body ul{padding-left:1.3rem;margin:.3rem 0 .6rem;}
-    .step-body ul li{margin-bottom:.3rem;}
-    .hl  {font-weight:700;}
-    .hl-t{color:var(--teal);font-weight:700;}
-    .hl-p{color:var(--purple);font-weight:700;}
-    .hl-o{color:var(--orange);font-weight:700;}
-    .hl-y{color:var(--yellow);font-weight:700;}
-    .calc-box{background:var(--surface2);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.88rem;color:var(--muted);}
-    .calc-box .result{color:var(--teal);font-weight:700;}
+ .container { max-width: 720px; margin: 0 auto; }
 
-    /* ── INTERACTIVE ZONE ── */
-    .interactive-zone{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-top:1.5rem;}
-    .zone-title{font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+ /* ── HEADER ── */
+ header {
+ text-align: center;
+ margin-bottom: 2rem;
+ padding: 2rem 1.5rem 1.75rem;
+ }
+ .header-tag {
+ display: inline-block;
+ font-family: 'DM Mono', monospace;
+ font-size: .72rem;
+ font-weight: 500;
+ letter-spacing: .12em;
+ text-transform: uppercase;
+ background: var(--teal-light);
+ color: var(--teal);
+ border: 1px solid var(--teal-mid);
+ border-radius: 20px;
+ padding: .25rem .85rem;
+ margin-bottom: .9rem;
+ }
+ h1 {
+ font-family: 'DM Serif Display', serif;
+ font-size: 2.2rem;
+ font-weight: 400;
+ line-height: 1.15;
+ color: var(--text);
+ margin-bottom: .5rem;
+ }
+ h1 em { color: var(--teal); font-style: normal; }
+ .header-sub { font-size: .92rem; color: var(--muted); max-width: 420px; margin: 0 auto; }
 
-    .checkboxes{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.1rem;}
-    .check-label{display:flex;align-items:center;gap:.5rem;background:var(--orange-dim);border:1px solid rgba(255,140,66,.3);border-radius:8px;padding:.45rem .9rem;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--orange);user-select:none;}
-    .check-label input{width:15px;height:15px;accent-color:var(--orange);cursor:pointer;}
+ /* ── FORMULA CARD ── */
+ .formula-card {
+ background: var(--surface);
+ border: 1.5px solid var(--border);
+ border-radius: var(--radius);
+ padding: 1.25rem 1.4rem;
+ margin-bottom: 1.5rem;
+ box-shadow: var(--shadow-sm);
+ }
+ .big-formula {
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.8rem;
+ color: var(--teal);
+ text-align: center;
+ margin-bottom: 1rem;
+ letter-spacing: .02em;
+ }
+ .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+ @media(max-width:480px){ .two-col { grid-template-columns: 1fr; } }
+ .param-box {
+ border-radius: 10px;
+ padding: .85rem 1rem;
+ display: flex;
+ gap: .75rem;
+ align-items: flex-start;
+ }
+ .param-box.alpha { background: var(--teal-light); border: 1.5px solid var(--teal-mid); }
+ .param-box.beta { background: var(--purple-light); border: 1.5px solid var(--purple-mid); }
+ .param-letter {
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.6rem;
+ line-height: 1;
+ margin-top: 2px;
+ }
+ .alpha .param-letter { color: var(--teal); }
+ .beta .param-letter { color: var(--purple); }
+ .param-text strong { display: block; font-size: .85rem; font-weight: 700; margin-bottom: .15rem; }
+ .alpha .param-text strong { color: var(--teal); }
+ .beta .param-text strong { color: var(--purple); }
+ .param-text p { font-size: .83rem; color: var(--muted); line-height: 1.45; }
 
-    .sliders-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;}
-    @media(max-width:480px){.sliders-row{grid-template-columns:1fr;}}
-    .slider-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;}
-    .slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.2rem;}
-    .slider-name{font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;}
-    .s-intercept .slider-name{color:var(--teal);}
-    .s-slope     .slider-name{color:var(--purple);}
-    .slider-num{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;}
-    .s-intercept .slider-num{color:var(--teal);}
-    .s-slope     .slider-num{color:var(--purple);}
-    .slider-hint{font-size:.78rem;color:var(--muted);margin-bottom:.55rem;}
+ /* ── SECTION WRAPPER ── */
+ .section {
+ background: var(--surface);
+ border: 1.5px solid var(--border);
+ border-radius: var(--radius);
+ margin-bottom: 1.25rem;
+ box-shadow: var(--shadow-sm);
+ overflow: hidden;
+ }
 
-    input[type="range"]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;}
-    input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;border:2.5px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .1s;}
-    input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2);}
-    #interceptSlider::-webkit-slider-thumb{background:var(--teal);}
-    #slopeSlider::-webkit-slider-thumb{background:var(--purple);}
+ /* ── SECTION HEADER (toggle) ── */
+ .section-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 1rem 1.25rem;
+ cursor: pointer;
+ user-select: none;
+ border-bottom: 1.5px solid transparent;
+ transition: background .15s;
+ }
+ .section-header:hover { background: var(--surface2); }
+ .section.open .section-header { border-bottom-color: var(--border); }
+ .section-title-row { display: flex; align-items: center; gap: .65rem; }
+ .section-icon { font-size: 1.1rem; }
+ .section-title {
+ font-family: 'DM Sans', sans-serif;
+ font-size: 1rem;
+ font-weight: 700;
+ color: var(--text);
+ }
+ .section-badge {
+ font-family: 'DM Mono', monospace;
+ font-size: .7rem;
+ font-weight: 500;
+ letter-spacing: .08em;
+ text-transform: uppercase;
+ padding: .18rem .6rem;
+ border-radius: 20px;
+ }
+ .badge-data { background: var(--orange-light); color: var(--orange); border: 1px solid #e8c0a0; }
+ .badge-visual { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-mid); }
+ .toggle-arrow {
+ color: var(--muted);
+ font-size: .8rem;
+ transition: transform .2s;
+ }
+ .section.open .toggle-arrow { transform: rotate(90deg); }
 
-    .eq-display{text-align:center;margin-bottom:1rem;}
-    .eq-box{display:inline-block;font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:var(--teal);background:rgba(56,232,200,.08);border:2px solid rgba(56,232,200,.35);border-radius:10px;padding:.4rem 1.4rem;}
+ /* ── SECTION BODY ── */
+ .section-body { display: none; padding: 1.25rem; }
+ .section.open .section-body { display: block; }
 
-    .graph-wrap{background:#10131e;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1rem;}
-    svg{display:block;width:100%;height:auto;}
+ /* ── DATA TABLE ── */
+ .col-names {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: .75rem;
+ margin-bottom: 1rem;
+ }
+ .col-name-wrap { display: flex; flex-direction: column; gap: .3rem; }
+ .col-name-wrap label {
+ font-family: 'DM Mono', monospace;
+ font-size: .72rem;
+ font-weight: 500;
+ letter-spacing: .1em;
+ text-transform: uppercase;
+ }
+ .col-name-wrap.x-col label { color: var(--teal); }
+ .col-name-wrap.y-col label { color: var(--pink); }
+ .col-name-input {
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 8px;
+ padding: .45rem .75rem;
+ font-family: 'DM Sans', sans-serif;
+ font-size: .92rem;
+ font-weight: 600;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ transition: border-color .15s;
+ }
+ .col-name-wrap.x-col .col-name-input:focus { border-color: var(--border2); }
+ .col-name-wrap.y-col .col-name-input:focus { border-color: var(--border2); }
 
-    /* ── FIT FEEDBACK ── */
-    .fit-bar{
-      display:flex;align-items:center;gap:.75rem;
-      background:var(--surface2);border:1px solid var(--border);
-      border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;
-      font-size:.88rem;
-    }
-    .fit-label{color:var(--muted);font-weight:600;white-space:nowrap;}
-    .fit-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
-    .fit-fill{height:100%;border-radius:4px;transition:width .3s,background .3s;}
-    .fit-score{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;min-width:3rem;text-align:right;}
-    .fit-msg{font-size:.82rem;color:var(--muted);white-space:nowrap;}
+ /* ── ROWS ── */
+ .rows-list { display: flex; flex-direction: column; gap: .45rem; margin-bottom: 1rem; }
+ .data-row {
+ display: grid;
+ grid-template-columns: 1fr 1fr auto;
+ gap: .5rem;
+ align-items: center;
+ }
+ .data-row input[type="number"] {
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 8px;
+ padding: .5rem .75rem;
+ font-family: 'DM Sans', sans-serif;
+ font-size: .92rem;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ transition: border-color .15s, background .15s;
+ -moz-appearance: textfield;
+ }
+ .data-row input[type="number"]::-webkit-outer-spin-button,
+ .data-row input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+ .data-row input.ix:focus { border-color: var(--border2); background: var(--surface2); }
+ .data-row input.iy:focus { border-color: var(--border2); background: var(--surface2); }
+ .del-btn {
+ background: none;
+ border: 1.5px solid var(--border);
+ border-radius: 7px;
+ cursor: pointer;
+ color: var(--muted);
+ font-size: .85rem;
+ padding: .35rem .55rem;
+ transition: color .15s, border-color .15s, background .15s;
+ line-height: 1;
+ }
+ .del-btn:hover { color: var(--pink); border-color: var(--pink); background: var(--pink-light); }
 
-    /* ── DATA TABLE SECTION ── */
-    .data-section{
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:16px;padding:1.4rem;margin-top:1.5rem;
-    }
-    .data-section .zone-title{margin-bottom:.6rem;}
+ .col-header-row {
+ display: grid;
+ grid-template-columns: 1fr 1fr auto;
+ gap: .5rem;
+ margin-bottom: .3rem;
+ }
+ .col-lbl {
+ font-family: 'DM Mono', monospace;
+ font-size: .72rem;
+ font-weight: 500;
+ letter-spacing: .1em;
+ text-transform: uppercase;
+ text-align: center;
+ padding: 0 .75rem;
+ }
+ .col-lbl.lx { color: var(--teal); }
+ .col-lbl.ly { color: var(--pink); }
 
-    .data-hint{font-size:.84rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;}
-    .data-hint strong{color:var(--text);}
+ .table-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+ .btn {
+ font-family: 'DM Sans', sans-serif;
+ font-size: .85rem;
+ font-weight: 600;
+ border: none;
+ border-radius: 8px;
+ padding: .5rem 1.1rem;
+ cursor: pointer;
+ transition: opacity .15s, transform .1s;
+ }
+ .btn:hover { opacity: .85; }
+ .btn:active { transform: scale(.97); }
+ .btn-add { background: var(--teal-light); color: var(--teal); border: 1.5px solid var(--teal-mid); }
+ .btn-clear { background: var(--pink-light); color: var(--pink); border: 1.5px solid #e0b0c8; }
+ .btn-plot { background: var(--teal); color: #fff; }
 
-    /* Column name inputs */
-    .col-names{display:grid;grid-template-columns:1fr 1fr auto;gap:.5rem;margin-bottom:.75rem;align-items:end;}
-    @media(max-width:480px){.col-names{grid-template-columns:1fr 1fr;}}
-    .col-name-wrap{display:flex;flex-direction:column;gap:.25rem;}
-    .col-name-wrap label{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
-    .col-name-wrap.x-col label{color:var(--teal);}
-    .col-name-wrap.y-col label{color:var(--pink);}
-    .col-name-input{
-      background:var(--surface2);border:1px solid var(--border);
-      border-radius:7px;padding:.4rem .65rem;
-      font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:700;
-      color:var(--text);outline:none;width:100%;
-      transition:border-color .15s;
-    }
-    .col-name-wrap.x-col .col-name-input:focus{border-color:var(--teal);}
-    .col-name-wrap.y-col .col-name-input:focus{border-color:var(--pink);}
+ /* paste */
+ .paste-hint { font-size: .8rem; color: var(--muted); margin-bottom: .5rem; }
+ .paste-area {
+ width: 100%;
+ background: var(--surface2);
+ border: 1.5px dashed var(--border2);
+ border-radius: 8px;
+ padding: .6rem .9rem;
+ margin-bottom: .9rem;
+ font-family: 'DM Mono', monospace;
+ font-size: .8rem;
+ color: var(--text);
+ resize: none;
+ min-height: 2.4rem;
+ outline: none;
+ transition: border-color .15s;
+ }
+ .paste-area:focus { border-color: var(--border2); border-style: solid; }
 
-    /* Paste zone */
-    .paste-zone{
-      background:var(--surface2);border:1.5px dashed var(--border);
-      border-radius:10px;padding:.75rem 1rem;margin-bottom:.75rem;
-      font-size:.84rem;color:var(--muted);
-      cursor:text;transition:border-color .15s;
-      min-height:2.8rem;
-      position:relative;
-    }
-    .paste-zone:focus-within{border-color:var(--purple);}
-    .paste-zone textarea{
-      width:100%;background:transparent;border:none;outline:none;
-      font-family:'Nunito Sans',sans-serif;font-size:.84rem;color:var(--text);
-      resize:none;min-height:2rem;
-    }
-    .paste-zone .paste-icon{position:absolute;right:.8rem;top:.7rem;font-size:1rem;opacity:.4;}
+ /* ── VISUALIZER ── */
+ .sliders-row {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: .75rem;
+ margin-bottom: 1rem;
+ }
+ @media(max-width:480px){ .sliders-row { grid-template-columns: 1fr; } }
+ .slider-card {
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 10px;
+ padding: .85rem 1rem;
+ }
+ .slider-top {
+ display: flex;
+ justify-content: space-between;
+ align-items: baseline;
+ margin-bottom: .15rem;
+ }
+ .slider-name { font-size: .85rem; font-weight: 700; }
+ .s-intercept .slider-name { color: var(--teal); }
+ .s-slope .slider-name { color: var(--purple); }
+ .slider-num {
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.4rem;
+ }
+ .s-intercept .slider-num { color: var(--teal); }
+ .s-slope .slider-num { color: var(--purple); }
+ .slider-hint { font-size: .75rem; color: var(--muted); margin-bottom: .55rem; }
 
-    /* Table */
-    .table-scroll{overflow-x:auto;margin-bottom:.75rem;}
-    table{width:100%;border-collapse:collapse;font-size:.9rem;}
-    thead th{
-      padding:.5rem .75rem;text-align:center;font-family:'Nunito',sans-serif;
-      font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;
-      border-bottom:1px solid var(--border);
-    }
-    th.th-x{color:var(--teal);}
-    th.th-y{color:var(--pink);}
-    th.th-del{color:var(--muted);width:2rem;}
-    tbody tr:hover td{background:rgba(255,255,255,.03);}
-    tbody td{padding:.3rem .4rem;text-align:center;border-bottom:1px solid rgba(46,51,80,.5);}
-    tbody td input{
-      width:100%;background:transparent;border:1px solid transparent;
-      border-radius:5px;padding:.3rem .5rem;text-align:center;
-      font-family:'Nunito Sans',sans-serif;font-size:.9rem;color:var(--text);
-      outline:none;transition:border-color .15s,background .15s;
-    }
-    tbody td input:focus{border-color:var(--border);background:var(--surface2);}
-    .td-x input:focus{border-color:rgba(56,232,200,.4);}
-    .td-y input:focus{border-color:rgba(244,114,182,.4);}
-    .del-btn{
-      background:none;border:none;cursor:pointer;
-      color:var(--muted);font-size:1rem;padding:.2rem .4rem;
-      border-radius:4px;transition:color .15s,background .15s;
-    }
-    .del-btn:hover{color:#f87171;background:rgba(248,113,113,.1);}
+ input[type="range"] {
+ -webkit-appearance: none;
+ width: 100%;
+ height: 5px;
+ border-radius: 3px;
+ outline: none;
+ cursor: pointer;
+ }
+ input[type="range"]::-webkit-slider-thumb {
+ -webkit-appearance: none;
+ width: 20px;
+ height: 20px;
+ border-radius: 50%;
+ border: 2.5px solid #fff;
+ box-shadow: 0 2px 8px rgba(0,0,0,.2);
+ cursor: pointer;
+ transition: transform .1s;
+ }
+ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+ #interceptSlider::-webkit-slider-thumb { background: var(--teal); }
+ #slopeSlider::-webkit-slider-thumb { background: var(--purple); }
 
-    .table-actions{display:flex;gap:.6rem;flex-wrap:wrap;}
-    .btn{
-      font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;
-      border:none;border-radius:8px;padding:.45rem 1rem;cursor:pointer;
-      transition:opacity .15s,transform .1s;
-    }
-    .btn:hover{opacity:.85;}
-    .btn:active{transform:scale(.97);}
-    .btn-add{background:rgba(56,232,200,.15);color:var(--teal);}
-    .btn-clear{background:rgba(248,113,113,.1);color:#f87171;}
-    .btn-plot{background:var(--pink);color:#fff;}
+ .checkboxes { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+ .check-label {
+ display: flex;
+ align-items: center;
+ gap: .45rem;
+ background: var(--orange-light);
+ border: 1.5px solid #e8c0a0;
+ border-radius: 8px;
+ padding: .4rem .85rem;
+ cursor: pointer;
+ font-size: .83rem;
+ font-weight: 600;
+ color: var(--orange);
+ user-select: none;
+ transition: background .15s;
+ }
+ .check-label:hover { background: #f5dece; }
+ .check-label input { width: 14px; height: 14px; accent-color: var(--orange); cursor: pointer; }
 
-    .note{margin-top:1rem;padding:.85rem 1rem;background:var(--surface2);border-radius:8px;font-size:.83rem;color:var(--muted);line-height:1.55;}
-    .note strong{color:var(--text);}
+ .eq-display { text-align: center; margin-bottom: 1rem; }
+ .eq-box {
+ display: inline-block;
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.6rem;
+ color: var(--teal);
+ background: var(--teal-light);
+ border: 2px solid var(--teal-mid);
+ border-radius: 10px;
+ padding: .35rem 1.5rem;
+ letter-spacing: .02em;
+ }
 
-    @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.07);}100%{transform:scale(1);}}
-    .eq-box.pop{animation:pop .22s ease-out;}
-  </style>
+ .graph-wrap {
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 10px;
+ overflow: hidden;
+ margin-bottom: 1rem;
+ }
+ svg { display: block; width: 100%; height: auto; }
+
+ /* fit bar */
+ .fit-bar {
+ display: flex;
+ align-items: center;
+ gap: .75rem;
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 10px;
+ padding: .75rem 1rem;
+ margin-bottom: 1rem;
+ font-size: .85rem;
+ }
+ .fit-label { color: var(--muted); font-weight: 600; white-space: nowrap; }
+ .fit-track { flex: 1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+ .fit-fill { height: 100%; border-radius: 4px; transition: width .3s, background .3s; }
+ .fit-score { font-family: 'DM Serif Display', serif; font-size: 1.1rem; min-width: 3rem; text-align: right; }
+ .fit-msg { font-size: .78rem; color: var(--muted); white-space: nowrap; }
+
+ .steps-divider { border: none; border-top: 1.5px solid var(--border); margin: 1.1rem 0; }
+
+ /* steps inside visualizer */
+ .step { margin-bottom: .75rem; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); }
+ .step-header {
+ display: flex;
+ align-items: center;
+ gap: .65rem;
+ padding: .75rem 1rem;
+ cursor: pointer;
+ user-select: none;
+ background: var(--surface2);
+ }
+ .step-header:hover { background: var(--bg); }
+ .step-badge {
+ font-family: 'DM Mono', monospace;
+ font-size: .68rem;
+ font-weight: 500;
+ letter-spacing: .07em;
+ text-transform: uppercase;
+ padding: .18rem .55rem;
+ border-radius: 20px;
+ }
+ .step-1 .step-badge { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-mid); }
+ .step-2 .step-badge { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-mid); }
+ .step-3 .step-badge { background: var(--orange-light); color: var(--orange); border: 1px solid #e8c0a0; }
+ .step-title { font-size: .9rem; font-weight: 600; flex: 1; color: var(--text); }
+ .step-arrow { color: var(--muted); font-size: .75rem; transition: transform .2s; }
+ .step.open .step-arrow { transform: rotate(90deg); }
+ .step-body {
+ display: none;
+ padding: .9rem 1rem 1rem;
+ background: #fff;
+ font-size: .88rem;
+ border-top: 1.5px solid var(--border);
+ }
+ .step.open .step-body { display: block; }
+ .step-body p { margin-bottom: .55rem; }
+ .step-body p:last-child { margin-bottom: 0; }
+ .step-body ul { padding-left: 1.3rem; margin: .3rem 0 .55rem; }
+ .step-body ul li { margin-bottom: .3rem; }
+ .hl-t { color: var(--teal); font-weight: 700; }
+ .hl-p { color: var(--purple); font-weight: 700; }
+ .hl-o { color: var(--orange); font-weight: 700; }
+ .calc-box {
+ background: var(--teal-light);
+ border-left: 3px solid var(--teal);
+ border-radius: 0 8px 8px 0;
+ padding: .6rem .9rem;
+ margin: .55rem 0;
+ font-family: 'DM Mono', monospace;
+ font-size: .82rem;
+ color: var(--muted);
+ }
+ .calc-box .result { color: var(--teal); font-weight: 700; }
+
+ /* ── PREDICTION PANEL ── */
+ .predict-panel {
+ background: linear-gradient(135deg, #fffbf0 0%, #f5f0ff 100%);
+ border: 1.5px solid #d8d0f0;
+ border-radius: 12px;
+ padding: 1rem 1.1rem;
+ margin-bottom: 1rem;
+ }
+ .predict-top {
+ display: flex;
+ align-items: center;
+ gap: .5rem;
+ margin-bottom: .75rem;
+ flex-wrap: wrap;
+ }
+ .predict-icon { font-size: 1.1rem; }
+ .predict-heading {
+ font-size: .9rem;
+ font-weight: 700;
+ color: var(--text);
+ }
+ .predict-formula {
+ font-family: 'DM Mono', monospace;
+ font-size: .78rem;
+ color: var(--purple);
+ background: var(--purple-light);
+ border: 1px solid var(--purple-mid);
+ border-radius: 5px;
+ padding: .12rem .55rem;
+ margin-left: auto;
+ }
+ .predict-input-row {
+ display: flex;
+ align-items: center;
+ gap: .55rem;
+ flex-wrap: wrap;
+ }
+ .predict-lbl {
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.1rem;
+ font-weight: 400;
+ color: var(--purple);
+ white-space: nowrap;
+ }
+ .predict-input {
+ background: #fff;
+ border: 1.5px solid var(--purple-mid);
+ border-radius: 8px;
+ padding: .45rem .75rem;
+ font-family: 'DM Sans', sans-serif;
+ font-size: .95rem;
+ color: var(--text);
+ outline: none;
+ width: 130px;
+ transition: border-color .15s, box-shadow .15s;
+ -moz-appearance: textfield;
+ }
+ .predict-input::-webkit-outer-spin-button,
+ .predict-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+ .predict-input:focus {
+ border-color: var(--purple);
+ box-shadow: 0 0 0 3px rgba(99,70,176,.12);
+ }
+ .predict-arrow {
+ font-size: 1.3rem;
+ color: var(--muted);
+ }
+ .predict-result {
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.6rem;
+ color: var(--purple);
+ min-width: 3rem;
+ transition: color .2s;
+ }
+ .predict-result.has-value { color: var(--purple); }
+ .predict-explanation {
+ margin-top: .65rem;
+ font-family: 'DM Mono', monospace;
+ font-size: .78rem;
+ color: var(--muted);
+ line-height: 1.6;
+ min-height: 1.2rem;
+ }
+ .predict-explanation .step-val { color: var(--teal); font-weight: 500; }
+ .predict-explanation .pred-val { color: var(--purple); font-weight: 600; }
+
+ /* ── ERROR DISPLAY ── */
+ .error-display {
+ background: #fff;
+ border: 1.5px solid var(--border);
+ border-radius: 10px;
+ padding: .85rem 1rem;
+ margin-bottom: .9rem;
+ }
+ .error-cols {
+ display: grid;
+ grid-template-columns: 1fr 1fr 1fr;
+ gap: .5rem;
+ margin-bottom: .85rem;
+ }
+ @media(max-width:480px){ .error-cols { grid-template-columns: 1fr 1fr; } }
+ .error-stat {
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 8px;
+ padding: .55rem .75rem;
+ display: flex;
+ flex-direction: column;
+ gap: .2rem;
+ }
+ .error-stat.highlight {
+ background: var(--teal-light);
+ border-color: var(--teal-mid);
+ }
+ .error-stat-label {
+ font-family: 'DM Mono', monospace;
+ font-size: .68rem;
+ letter-spacing: .06em;
+ text-transform: uppercase;
+ color: var(--muted);
+ }
+ .error-stat.highlight .error-stat-label { color: var(--teal); }
+ .error-stat-value {
+ font-family: 'DM Serif Display', serif;
+ font-size: 1.25rem;
+ color: var(--text);
+ transition: color .3s;
+ }
+ .error-stat.highlight .error-stat-value { color: var(--teal); }
+
+ .error-rows-wrap {
+ font-size: .8rem;
+ overflow-x: auto;
+ }
+ .error-rows-header {
+ display: grid;
+ grid-template-columns: 1fr 1.1fr 1.1fr 1fr 1fr;
+ gap: .3rem;
+ padding: .3rem .4rem;
+ background: var(--surface2);
+ border-radius: 6px 6px 0 0;
+ font-family: 'DM Mono', monospace;
+ font-size: .68rem;
+ letter-spacing: .05em;
+ text-transform: uppercase;
+ color: var(--muted);
+ border: 1.5px solid var(--border);
+ border-bottom: none;
+ }
+ .error-row {
+ display: grid;
+ grid-template-columns: 1fr 1.1fr 1.1fr 1fr 1fr;
+ gap: .3rem;
+ padding: .3rem .4rem;
+ border: 1.5px solid var(--border);
+ border-top: none;
+ font-family: 'DM Mono', monospace;
+ font-size: .78rem;
+ align-items: center;
+ transition: background .2s;
+ }
+ .error-row:last-child { border-radius: 0 0 6px 6px; }
+ .error-row:hover { background: var(--surface2); }
+ .error-row .err-x { color: var(--teal); }
+ .error-row .err-y { color: var(--pink); }
+ .error-row .err-yhat{ color: var(--purple); }
+ .error-row .err-diff{ font-weight: 600; }
+ .err-diff.pos { color: #c45f18; }
+ .err-diff.neg { color: #6346b0; }
+ .error-row .err-sq { color: var(--muted); }
+
+ /* ── NUDGE INFO CARDS ── */
+ .nudge-info-row {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: .65rem;
+ margin-bottom: .85rem;
+ }
+ @media(max-width:520px){ .nudge-info-row { grid-template-columns: 1fr; } }
+ .nudge-info-card {
+ background: var(--surface2);
+ border: 1.5px solid var(--border);
+ border-radius: 9px;
+ padding: .75rem .9rem;
+ }
+ .nudge-info-title {
+ font-family: 'DM Sans', sans-serif;
+ font-size: .78rem;
+ font-weight: 700;
+ color: var(--text);
+ margin-bottom: .35rem;
+ }
+ .nudge-info-body {
+ font-size: .78rem;
+ color: var(--muted);
+ line-height: 1.55;
+ }
+ .nudge-example {
+ display: block;
+ margin-top: .45rem;
+ padding: .4rem .55rem;
+ background: #fffbf0;
+ border: 1px solid #e8dfc8;
+ border-radius: 5px;
+ font-family: 'DM Mono', monospace;
+ font-size: .72rem;
+ color: #7a6030;
+ line-height: 1.7;
+ }
+
+ .nudge-formula {
+ display: inline-block;
+ font-family: 'DM Mono', monospace;
+ font-size: .74rem;
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ padding: .1rem .45rem;
+ margin: .2rem 0;
+ color: var(--text);
+ }
+
+ /* ── ML COMBINED BOX ── */
+ .ml-box {
+ background: var(--surface);
+ border: 1.5px solid var(--border);
+ border-radius: var(--radius);
+ padding: 1.1rem 1.25rem;
+ box-shadow: var(--shadow-sm);
+ }
+ .ml-section-title {
+ font-size: .88rem;
+ font-weight: 700;
+ color: var(--text);
+ margin-bottom: .75rem;
+ }
+ .ml-divider {
+ border: none;
+ border-top: 1.5px solid var(--border);
+ margin: .25rem 0;
+ }
+
+ .error-section-title {
+ font-family: 'DM Sans', sans-serif;
+ font-size: .95rem;
+ font-weight: 700;
+ color: var(--text);
+ margin-bottom: .85rem;
+ }
+
+ /* ── NUDGE BUTTONS ── */
+ .nudge-row {
+ background: #faf7f0;
+ border: 1.5px solid #e8dfc8;
+ border-radius: 10px;
+ padding: .85rem 1rem;
+ margin-bottom: 1rem;
+ }
+ .nudge-label {
+ display: flex;
+ align-items: center;
+ gap: .45rem;
+ font-size: .82rem;
+ font-weight: 600;
+ color: var(--muted);
+ margin-bottom: .65rem;
+ }
+ .nudge-icon { font-size: 1rem; }
+ .nudge-pct {
+ font-family: 'DM Mono', monospace;
+ font-size: .75rem;
+ background: #f0e8d0;
+ border-radius: 4px;
+ padding: .05rem .35rem;
+ color: #8a6a20;
+ }
+ .nudge-buttons {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: .6rem;
+ }
+ @media(max-width:480px){ .nudge-buttons { grid-template-columns: 1fr; } }
+ .btn-nudge {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: .4rem;
+ font-size: .85rem;
+ font-weight: 700;
+ border-radius: 9px;
+ padding: .55rem 1rem;
+ transition: transform .1s, opacity .15s, box-shadow .15s;
+ }
+ .btn-nudge:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.1); }
+ .btn-nudge:active { transform: scale(.97); }
+ .btn-nudge-intercept {
+ background: var(--teal-light);
+ color: var(--teal);
+ border: 1.5px solid var(--teal-mid);
+ }
+ .btn-nudge-slope {
+ background: var(--purple-light);
+ color: var(--purple);
+ border: 1.5px solid var(--purple-mid);
+ }
+ .nudge-arrow { font-size: 1rem; opacity: .7; transition: transform .15s; }
+ .btn-nudge:hover .nudge-arrow { transform: translateX(3px); opacity: 1; }
+
+ @keyframes nudgeFlash {
+ 0% { transform: scale(1); }
+ 30% { transform: scale(1.07); box-shadow: 0 0 0 4px rgba(10,124,110,.2); }
+ 100% { transform: scale(1); box-shadow: none; }
+ }
+ .btn-nudge-intercept.nudge-flash { animation: nudgeFlash .3s ease-out; }
+ @keyframes nudgeFlashP {
+ 0% { transform: scale(1); }
+ 30% { transform: scale(1.07); box-shadow: 0 0 0 4px rgba(99,70,176,.2); }
+ 100% { transform: scale(1); box-shadow: none; }
+ }
+ .btn-nudge-slope.nudge-flash { animation: nudgeFlashP .3s ease-out; }
+
+ @keyframes pop { 0%{transform:scale(1);} 40%{transform:scale(1.06);} 100%{transform:scale(1);} }
+ .eq-box.pop { animation: pop .22s ease-out; }
+
+ /* ── SUBSECTIONS ── */
+ .subsection {
+ border: 1.5px solid var(--border);
+ border-radius: 10px;
+ margin-bottom: .75rem;
+ overflow: hidden;
+ }
+ .subsection-header {
+ display: flex;
+ align-items: center;
+ gap: .6rem;
+ padding: .75rem 1rem;
+ cursor: pointer;
+ user-select: none;
+ background: var(--surface2);
+ border-bottom: 1.5px solid transparent;
+ transition: background .15s;
+ }
+ .subsection-header:hover { background: var(--bg); }
+ .subsection.open .subsection-header { border-bottom-color: var(--border); }
+ .subsection-icon { font-size: 1rem; }
+ .subsection-title { font-size: .92rem; font-weight: 700; color: var(--text); flex: 1; }
+ .subsection-body { display: none; padding: 1rem; background: var(--surface); }
+ .subsection-body--graph { padding: .9rem; }
+ .subsection.open .subsection-body { display: block; }
+ </style>
 </head>
 <body>
 <div class="container">
 
-  <header>
-    <span class="header-emoji">📈</span>
-    <h1>Räta linjens ekvation:<br><span>intercept &amp; lutning</span></h1>
-    <p class="header-sub">Lägg in datapunkter och anpassa linjen så att den passar så bra som möjligt!</p>
-  </header>
+ <header>
+<h1>Anpassa en linjär modell till data</h1>
+</header>
 
-  <!-- Formula -->
-  <div class="formula-card">
-    <div class="big-formula">Y = α + β · X</div>
-    <div class="two-col">
-      <div class="param-box alpha">
-        <div class="param-letter">α</div>
-        <div class="param-text">
-          <strong>alfa = interceptet</strong>
-          <p>Värdet på Y när X är 0 — bestämmer linjens vertikala startläge.</p>
-        </div>
-      </div>
-      <div class="param-box beta">
-        <div class="param-letter">β</div>
-        <div class="param-text">
-          <strong>beta = lutningen</strong>
-          <p>Hur brant linjen är — hur mycket Y ändras när X ökar med 1.</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Steps -->
-  <div class="step step-1 open">
-    <div class="step-header" onclick="toggleStep(this)">
-      <span class="step-badge">Steg 1</span>
-      <span class="step-title">Hitta interceptet och lutningen i grafen</span>
-      <span class="step-arrow">▶</span>
-    </div>
-    <div class="step-body">
-      <p>Grafen visar linjen <span class="hl-t">Y = 1 + 2X</span>. Vi kontrollerar att interceptet är 1 och lutningen är 2.</p>
-      <p><span class="hl">Kontrollera interceptet:</span> Hitta X = 0 på x-axeln — linjen passerar punkten (0, 1). Det visar att interceptet = 1. ✓<br>
-      <em style="font-size:.85rem;color:var(--muted)">Tips: Klicka i "Visa punkt vid X=0" för att se den orange cirkeln.</em></p>
-      <p><span class="hl">Kontrollera lutningen</span> med punkterna (0, 1) och (2, 5):</p>
-      <div class="calc-box">
-        höjning = ΔY = 5 − 1 = 4<br>
-        horisontell förflyttning = ΔX = 2 − 0 = 2<br>
-        <span class="result">lutning = 4 ÷ 2 = 2 ✓</span><br>
-        <em>När X ökar med 1 ökar Y med 2.</em>
-      </div>
-    </div>
-  </div>
 
-  <div class="step step-2">
-    <div class="step-header" onclick="toggleStep(this)">
-      <span class="step-badge">Steg 2</span>
-      <span class="step-title">Ändra interceptet — linjen glider upp eller ner</span>
-      <span class="step-arrow">▶</span>
-    </div>
-    <div class="step-body">
-      <p>Flytta <span class="hl-p">intercept-reglaget</span> — linjen förflyttas uppåt eller nedåt utan att lutnigen ändras.</p>
-      <p>Prova 1 → −1: båda punkterna rör sig 2 steg nedåt, men avståndet dem emellan är detsamma.</p>
-    </div>
-  </div>
+ <!-- ══ SECTION 1: DATA ══ -->
+ <div class="section open" id="dataSection">
+ <div class="section-header" onclick="toggleSection('dataSection')">
+ <div class="section-title-row">
+ <span class="section-icon"></span>
+ <span class="section-title">Datapunkter</span>
+ <span class="section-badge badge-data">Steg 1</span>
+ </div>
+ <span class="toggle-arrow">▶</span>
+ </div>
+ <div class="section-body">
 
-  <div class="step step-3">
-    <div class="step-header" onclick="toggleStep(this)">
-      <span class="step-badge">Steg 3</span>
-      <span class="step-title">Ändra lutningen — linjen blir brantare eller flackare</span>
-      <span class="step-arrow">▶</span>
-    </div>
-    <div class="step-body">
-      <p>Håll interceptet på −1 och flytta <span class="hl-o">lutnings-reglaget</span>.</p>
-      <ul>
-        <li><span class="hl-t">Lutning = 1:</span> Flackare, men fortfarande uppåt. Y ökar med 1 per X-steg.</li>
-        <li><span class="hl-o">Negativ lutning (t.ex. −2):</span> Linjen går neråt. Y <em>minskar</em> med 2 per X-steg.</li>
-        <li><span class="hl-y">Lutning = 0:</span> Vågrätt — X påverkar inte Y alls.</li>
-      </ul>
-    </div>
-  </div>
+ <div class="col-names">
+ <div class="col-name-wrap x-col">
+ <label>X-variabel</label>
+ <input class="col-name-input" id="xName" type="text" value="X" placeholder="t.ex. Ålder">
+ </div>
+ <div class="col-name-wrap y-col">
+ <label>Y-variabel</label>
+ <input class="col-name-input" id="yName" type="text" value="Y" placeholder="t.ex. Längd">
+ </div>
+ </div>
 
-  <!-- Interactive graph -->
-  <div class="interactive-zone">
-    <div class="zone-title">🎛️ Justera linjen</div>
+ <div class="col-header-row">
+ <div class="col-lbl lx" id="colLblX">X</div>
+ <div class="col-lbl ly" id="colLblY">Y</div>
+ <div></div>
+ </div>
 
-    <div class="checkboxes">
-      <label class="check-label"><input type="checkbox" id="showCircle"> Visa punkt vid X=0 ●</label>
-      <label class="check-label"><input type="checkbox" id="showTriangle"> Visa punkt vid X=2 ▲</label>
-    </div>
+ <div class="rows-list" id="rowsList"></div>
 
-    <div class="sliders-row">
-      <div class="slider-card s-intercept">
-        <div class="slider-top">
-          <span class="slider-name">α Intercept</span>
-          <span class="slider-num" id="interceptVal">1</span>
-        </div>
-        <div class="slider-hint">Förflyttar linjen upp/ned</div>
-        <input type="range" id="interceptSlider" min="-10" max="10" step="0.5" value="1">
-      </div>
-      <div class="slider-card s-slope">
-        <div class="slider-top">
-          <span class="slider-name">β Lutning</span>
-          <span class="slider-num" id="slopeVal">2</span>
-        </div>
-        <div class="slider-hint">Ändrar linjens branthet</div>
-        <input type="range" id="slopeSlider" min="-5" max="5" step="0.25" value="2">
-      </div>
-    </div>
+ <div class="table-actions" style="margin-bottom:1rem">
+ <button class="btn btn-add" onclick="addRow()">+ Rad</button>
+ <button class="btn btn-clear" onclick="clearData()">Rensa</button>
+ <button class="btn btn-plot" onclick="plotData()">Plotta →</button>
+ </div>
 
-    <div class="eq-display">
-      <span class="eq-box" id="equationDisplay">Y = 1 + 2X</span>
-    </div>
+ <p class="paste-hint">Eller klistra in direkt från Excel (två kolumner, flik/semikolon-separerat):</p>
+ <textarea id="pasteArea" class="paste-area" rows="2" placeholder="Klistra in från Excel, eller skriv: x-värde tab y-värde, Shift+Enter för ny rad, Enter för att plotta"></textarea>
 
-    <!-- Fit feedback (hidden until data exists) -->
-    <div class="fit-bar" id="fitBar" style="display:none">
-      <span class="fit-label">Passning:</span>
-      <div class="fit-track"><div class="fit-fill" id="fitFill"></div></div>
-      <span class="fit-score" id="fitScore"></span>
-      <span class="fit-msg" id="fitMsg"></span>
-    </div>
+ </div>
+ </div>
 
-    <div class="graph-wrap">
-      <svg id="graph" viewBox="0 0 560 380" xmlns="http://www.w3.org/2000/svg"></svg>
-    </div>
+ <!-- ══ SECTION 2: VISUALIZER ══ -->
+ <div class="section open" id="vizSection">
+ <div class="section-header" onclick="toggleSection('vizSection')">
+ <div class="section-title-row">
+ <span class="section-icon"></span>
+ <span class="section-title">Visualisering</span>
+ <span class="section-badge badge-visual">Steg 2</span>
+ </div>
+ <span class="toggle-arrow">▶</span>
+ </div>
+ <div class="section-body">
 
-    <div class="note">
-      <strong>Kom ihåg:</strong> Varje punkt har koordinaterna (X, Y). Punkten (0, 1) ligger vid X = 0 och Y = 1.
-    </div>
-  </div>
+ <!-- Predict panel -->
+ <div class="predict-panel" style="margin-bottom:1rem">
+ <div class="predict-top">
+ <span class="predict-icon"></span>
+ <span class="predict-heading">Förutsäg ett nytt värde</span>
+ </div>
+ <div class="predict-input-row">
+ <label class="predict-lbl"><span class="dyn-xname">X</span> =</label>
+ <input type="number" step="any" id="predictX" class="predict-input" placeholder="skriv ett x-värde…" oninput="updatePrediction()">
+ <span class="predict-arrow">&#8594;</span>
+ <label class="predict-lbl"><span class="dyn-yname">Y</span> =</label>
+ <span class="predict-result" id="predictResult">—</span>
+ </div>
+ <div class="predict-explanation" id="predictExplanation"></div>
+ </div>
 
-  <!-- Data table section -->
-  <div class="data-section">
-    <div class="zone-title">📊 Lägg in dina datapunkter</div>
+ <!-- Equation display -->
+ <div class="eq-display">
+ <span class="eq-box" id="equationDisplay">Y = 1 + 2X</span>
+ </div>
 
-    <p class="data-hint">
-      <strong>Skriv in värden</strong> direkt i tabellen, eller <strong>klistra in från Excel/Calc</strong> — markera två kolumner och klistra in nedan. Du kan också namnge dina variabler.
-    </p>
+ <!-- Hidden sliders (still needed by JS) -->
+ <input type="range" id="interceptSlider" min="-10" max="10" step="0.5" value="1" style="display:none">
+ <input type="range" id="slopeSlider" min="-5" max="5" step="0.25" value="2" style="display:none">
+ <span id="interceptVal" style="display:none"></span>
+ <span id="slopeVal" style="display:none"></span>
 
-    <div class="col-names">
-      <div class="col-name-wrap x-col">
-        <label>X-variabel</label>
-        <input class="col-name-input" id="xName" type="text" value="X" placeholder="t.ex. Ålder">
-      </div>
-      <div class="col-name-wrap y-col">
-        <label>Y-variabel</label>
-        <input class="col-name-input" id="yName" type="text" value="Y" placeholder="t.ex. Längd">
-      </div>
-    </div>
+ <div class="graph-wrap">
+ <svg id="graph" viewBox="0 0 560 380" xmlns="http://www.w3.org/2000/svg"></svg>
+ </div>
 
-    <div class="paste-zone" title="Klistra in data från Excel här">
-      <textarea id="pasteArea" rows="2" placeholder="Klistra in data från Excel här (två kolumner, en rad per datapunkt)…"></textarea>
-      <span class="paste-icon">📋</span>
-    </div>
+ <!-- COMBINED BOX: shown after plot -->
+ <div id="subError" style="margin-top:1rem;">
+ <div class="ml-box">
 
-    <div class="table-scroll">
-      <table id="dataTable">
-        <thead>
-          <tr>
-            <th class="th-x" id="thX">X</th>
-            <th class="th-y" id="thY">Y</th>
-            <th class="th-del"></th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
+ <!-- Section: Justera -->
+ <div class="ml-section-title" style="margin-top:1rem"> Gradientmetoden — ett steg i rätt riktning</div>
 
-    <div class="table-actions">
-      <button class="btn btn-add" onclick="addRow()">+ Lägg till rad</button>
-      <button class="btn btn-clear" onclick="clearData()">Rensa alla</button>
-      <button class="btn btn-plot" onclick="plotData()">Plotta datapunkter →</button>
-    </div>
-  </div>
+ <div class="nudge-info-row">
+ <details class="nudge-info-card">
+ <summary class="nudge-info-title">Hur justeras skärningspunkten α?</summary>
+ <div class="nudge-info-body">
+ För varje datapunkt: ta det verkliga värdet minus vad linjen förutsäger. Det kallas felmarginalen — hur fel linjen är för den punkten.<br><br>
+ Ta medelvärdet av alla felmarginaler. Det visar om linjen i snitt är för hög eller för låg.<br><br>
+ Ny skärningspunkt =<br>
+ <span class="nudge-formula">gammal skärningspunkt<br>+ inlärningshastighet (0.1) × medelfelmarginal</span><br><br>
+ Positivt medel → linjen är för låg → skärningspunkten ökar.<br>
+ Negativt medel → linjen är för hög → skärningspunkten minskar.
+ <span class="nudge-example" id="exampleAlpha">Lägg in data för att se ett exempel.</span>
+ </div>
+ </details>
+ <details class="nudge-info-card">
+ <summary class="nudge-info-title">Hur justeras lutningen β?</summary>
+ <div class="nudge-info-body">
+ Samma idé, men punkter med höga x-värden ges mer vikt — de påverkas mest av lutningen.<br><br>
+ Multiplicera varje felmarginal med punktens x-värde. Ta medelvärdet av dessa produkter.<br><br>
+ Ny lutning =<br>
+ <span class="nudge-formula">gammal lutning<br>+ inlärningshastighet (0.1) × medel av (varje punkts x-värde × dess felmarginal)</span><br><br>
+ Om punkter långt ut på x-axeln ligger ovanför linjen → öka lutningen.<br>
+ Om de ligger under → minska lutningen.
+ <span class="nudge-example" id="exampleBeta">Lägg in data för att se ett exempel.</span>
+ </div>
+ </details>
+ </div>
+
+ <div class="nudge-buttons" style="margin-bottom:1rem">
+ <button class="btn btn-nudge btn-nudge-intercept" id="interceptNudge" onclick="nudgeIntercept()">
+ Ett steg: skärningspunkt &nbsp;<span class="nudge-arrow">&#8594;</span>
+ </button>
+ <button class="btn btn-nudge btn-nudge-slope" id="slopeNudge" onclick="nudgeSlope()">
+ Ett steg: lutning &nbsp;<span class="nudge-arrow">&#8594;</span>
+ </button>
+ </div>
+
+ <div class="ml-divider"></div>
+
+ <!-- Section: Fel -->
+ <div class="ml-section-title" style="margin-top:1rem"> Fel</div>
+
+ <div class="fit-bar" id="fitBar">
+ <span class="fit-label">Passning:</span>
+ <div class="fit-track"><div class="fit-fill" id="fitFill"></div></div>
+ <span class="fit-score" id="fitScore"></span>
+ <span class="fit-msg" id="fitMsg"></span>
+ </div>
+
+ <div class="error-display">
+ <div class="error-cols">
+ <div class="error-stat">
+ <span class="error-stat-label">Medelfel (MAE)</span>
+ <span class="error-stat-value" id="errMAE">—</span>
+ </div>
+ <div class="error-stat">
+ <span class="error-stat-label">Kvadratfel (MSE)</span>
+ <span class="error-stat-value" id="errMSE">—</span>
+ </div>
+ <div class="error-stat highlight">
+ <span class="error-stat-label">Passning</span>
+ <span class="error-stat-value" id="errFit">—</span>
+ </div>
+ </div>
+ <div class="error-rows-wrap">
+ <div class="error-rows-header">
+ <span id="errColX"><span class="dyn-xname">X</span></span>
+ <span id="errColY"><span class="dyn-yname">Y</span> (verkligt)</span>
+ <span>Ŷ (förutsagt)</span>
+ <span>Fel (Y − Ŷ)</span>
+ <span>Fel²</span>
+ </div>
+ <div id="errorRows"></div>
+ </div>
+ </div>
+
+ </div>
+ </div>
+
+ </div>
+ </div>
 
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════
-   DATA MANAGEMENT
-═══════════════════════════════════════════════ */
-let dataPoints = []; // [{x, y}]
-
-function addRow(xVal='', yVal='') {
-  const tbody = document.getElementById('tableBody');
-  const tr = document.createElement('tr');
-  const id = Date.now() + Math.random();
-  tr.dataset.id = id;
-  tr.innerHTML = `
-    <td class="td-x"><input type="number" step="any" value="${xVal}" placeholder="0" oninput="scheduleReplot()"></td>
-    <td class="td-y"><input type="number" step="any" value="${yVal}" placeholder="0" oninput="scheduleReplot()"></td>
-    <td><button class="del-btn" onclick="deleteRow(this)" title="Ta bort">✕</button></td>`;
-  tbody.appendChild(tr);
+/* ═══════════════════════════════
+ SECTION TOGGLE
+═══════════════════════════════ */
+function toggleSection(id) {
+ document.getElementById(id).classList.toggle('open');
 }
 
-function deleteRow(btn) {
-  btn.closest('tr').remove();
-  scheduleReplot();
+function toggleSubsection(id) {
+ document.getElementById(id).classList.toggle('open');
+}
+
+function toggleStep(header) {
+ header.parentElement.classList.toggle('open');
+}
+
+/* ═══════════════════════════════
+ DATA ROWS
+═══════════════════════════════ */
+let dataPoints = [];
+
+function addRow(xVal='', yVal='') {
+ const list = document.getElementById('rowsList');
+ const div = document.createElement('div');
+ div.className = 'data-row';
+ div.innerHTML = `
+ <input type="number" class="ix" step="any" value="${xVal}" placeholder="x-värde" oninput="scheduleReplot()">
+ <input type="number" class="iy" step="any" value="${yVal}" placeholder="y-värde" oninput="scheduleReplot()">
+ <button class="del-btn" onclick="this.parentElement.remove(); scheduleReplot();" title="Ta bort"></button>`;
+ list.appendChild(div);
 }
 
 function clearData() {
-  document.getElementById('tableBody').innerHTML = '';
-  dataPoints = [];
-  draw();
+ document.getElementById('rowsList').innerHTML = '';
+ dataPoints = [];
+ draw();
 }
 
 function readTable() {
-  const rows = document.querySelectorAll('#tableBody tr');
-  const pts = [];
-  rows.forEach(tr => {
-    const inputs = tr.querySelectorAll('input');
-    const x = parseFloat(inputs[0].value);
-    const y = parseFloat(inputs[1].value);
-    if (!isNaN(x) && !isNaN(y)) pts.push({x, y});
-  });
-  return pts;
+ const rows = document.querySelectorAll('.data-row');
+ const pts = [];
+ rows.forEach(row => {
+ const ix = row.querySelector('.ix');
+ const iy = row.querySelector('.iy');
+ const x = parseFloat(ix.value);
+ const y = parseFloat(iy.value);
+ if (!isNaN(x) && !isNaN(y)) pts.push({x, y});
+ });
+ return pts;
 }
 
 function plotData() {
-  dataPoints = readTable();
-  // Auto-expand sliders if needed
-  if (dataPoints.length > 0) {
-    const xs = dataPoints.map(p=>p.x), ys = dataPoints.map(p=>p.y);
-    const xRange = Math.max(Math.abs(Math.min(...xs)), Math.abs(Math.max(...xs)));
-    const yRange = Math.max(Math.abs(Math.min(...ys)), Math.abs(Math.max(...ys)));
-    // Suggest auto-fit intercept/slope only on first plot
-    autoFitSuggestion(dataPoints);
-  }
-  draw();
+ dataPoints = readTable();
+ if (dataPoints.length >= 2) autoFitSuggestion(dataPoints);
+ // Open viz section and show nudge buttons
+ document.getElementById('vizSection').classList.add('open');
+ // Show the error+nudge subsection once we have data
+ const subError = document.getElementById('subError');
+ // subError is always visible
+ draw();
 }
 
 let replotTimer = null;
 function scheduleReplot() {
-  clearTimeout(replotTimer);
-  replotTimer = setTimeout(() => {
-    if (dataPoints.length > 0) {
-      dataPoints = readTable();
-      draw();
-    }
-  }, 300);
+ clearTimeout(replotTimer);
+ replotTimer = setTimeout(() => {
+ if (dataPoints.length > 0) { dataPoints = readTable(); draw(); }
+ }, 300);
 }
 
-/* Rough OLS suggestion — sets sliders to a reasonable starting point */
 function autoFitSuggestion(pts) {
-  if (pts.length < 2) return;
-  const n = pts.length;
-  const mx = pts.reduce((s,p)=>s+p.x,0)/n;
-  const my = pts.reduce((s,p)=>s+p.y,0)/n;
-  const num = pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0);
-  const den = pts.reduce((s,p)=>s+(p.x-mx)**2,0);
-  if (den === 0) return;
-  const b = num/den;
-  const a = my - b*mx;
-  // Clamp to slider range
-  const aC = Math.max(-10, Math.min(10, Math.round(a*2)/2));
-  const bC = Math.max(-5,  Math.min(5,  Math.round(b*4)/4));
-  document.getElementById('interceptSlider').value = aC;
-  document.getElementById('slopeSlider').value = bC;
+ // Intentionally BAD random starting point so the user has to find the fit themselves
+ if (pts.length < 2) return;
+ // Pick a random skärningspunkt and slope that is clearly off
+ const randIntercept = (Math.random() * 16 - 8).toFixed(1); // -8 to +8, likely wrong
+ const randSlope = (Math.random() * 6 - 3).toFixed(2); // -3 to +3, likely wrong
+ currentA = parseFloat(randIntercept);
+ currentB = parseFloat(randSlope);
+ syncSlidersFromState();
 }
 
-/* ═══════════════════════════════════════════════
-   PASTE FROM EXCEL
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════
+ INTERNAL PARAMETER STATE
+ α and β are stored as plain JS
+ floats — sliders are just display.
+ This avoids step/min/max rounding
+ killing the nudge after few presses.
+═══════════════════════════════ */
+let currentA = 1; // skärningspunkt
+let currentB = 2; // slope
+
+function syncSlidersFromState() {
+ // Expand slider range if needed, then sync thumb position
+ function syncOne(slider, value) {
+ if (value < parseFloat(slider.min)) slider.min = value - 5;
+ if (value > parseFloat(slider.max)) slider.max = value + 5;
+ slider.value = value;
+ }
+ syncOne(iSlider, currentA);
+ syncOne(sSlider, currentB);
+}
+
+const LEARN_RATE = 0.15; // 15 % step — visible movement every press
+
+function olsTarget(pts) {
+ if (pts.length < 2) return null;
+ const n = pts.length;
+ const mx = pts.reduce((s,p)=>s+p.x,0)/n;
+ const my = pts.reduce((s,p)=>s+p.y,0)/n;
+ const num = pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0);
+ const den = pts.reduce((s,p)=>s+(p.x-mx)**2,0);
+ if (den===0) return null;
+ return { a: my - (num/den)*mx, b: num/den };
+}
+
+function nudgeIntercept() {
+ if (dataPoints.length < 2) return flashNudge('interceptNudge');
+ const n = dataPoints.length;
+ const meanResid = dataPoints.reduce((s,p) => s + (p.y - (currentA + currentB*p.x)), 0) / n;
+ currentA = currentA + LEARN_RATE * meanResid;
+ syncSlidersFromState();
+ flashNudge('interceptNudge');
+ draw();
+}
+
+function nudgeSlope() {
+ if (dataPoints.length < 2) return flashNudge('slopeNudge');
+ const n = dataPoints.length;
+ const meanXResid = dataPoints.reduce((s,p) => s + p.x*(p.y - (currentA + currentB*p.x)), 0) / n;
+ currentB = currentB + LEARN_RATE * meanXResid;
+ syncSlidersFromState();
+ flashNudge('slopeNudge');
+ draw();
+}
+
+function updateNudgeExamples() {
+ const exA = document.getElementById('exampleAlpha');
+ const exB = document.getElementById('exampleBeta');
+ if (!exA || !exB) return;
+
+ const pts = dataPoints;
+ if (pts.length < 2) {
+ exA.textContent = 'Lägg in data för att se ett exempel.';
+ exB.textContent = 'Lägg in data för att se ett exempel.';
+ return;
+ }
+
+ const n = pts.length;
+ const a = currentA, b = currentB;
+ let sumResid = 0, sumXResid = 0;
+ pts.forEach(p => {
+ const resid = p.y - (a + b * p.x);
+ sumResid += resid;
+ sumXResid += p.x * resid;
+ });
+ const meanResid = sumResid / n;
+ const meanXResid = sumXResid / n;
+ const aNext = a + LEARN_RATE * meanResid;
+ const bNext = b + LEARN_RATE * meanXResid;
+
+ const sign = v => v >= 0 ? '+' : '';
+
+ exA.innerHTML =
+ `Summa av alla felmarginaler = ${fmt(sumResid)}
+` +
+ `Medelvärde = ${fmt(sumResid)} / ${n} = <b>${fmt(meanResid)}</b>
+` +
+ `Ny skärningspunkt = ${fmt(a)} + 0.1 × ${fmt(meanResid)} = <b>${fmt(aNext)}</b>`;
+
+ exB.innerHTML =
+ `Summa av (varje punkts x-värde × dess felmarginal) = ${fmt(sumXResid)}
+` +
+ `Medelvärde = ${fmt(sumXResid)} / ${n} = <b>${fmt(meanXResid)}</b>
+` +
+ `Ny lutning = ${fmt(b)} + 0.1 × ${fmt(meanXResid)} = <b>${fmt(bNext)}</b>`;
+}
+
+function flashNudge(id) {
+ const btn = document.getElementById(id);
+ btn.classList.add('nudge-flash');
+ setTimeout(() => btn.classList.remove('nudge-flash'), 300);
+}
+
+/* ═══════════════════════════════
+ PREDICTION
+═══════════════════════════════ */
+let predictionX = null;
+
+function updatePrediction() {
+ const inp = document.getElementById('predictX');
+ const val = parseFloat(inp.value);
+ predictionX = isNaN(val) ? null : val;
+ const a = parseFloat(iSlider.value);
+ const b = parseFloat(sSlider.value);
+ const resultEl = document.getElementById('predictResult');
+ const explEl = document.getElementById('predictExplanation');
+
+ if (predictionX === null) {
+ resultEl.textContent = '—';
+ explEl.textContent = '';
+ } else {
+ const yHat = a + b * predictionX;
+ resultEl.textContent = fmt(yHat);
+ resultEl.classList.add('has-value');
+ const xName = document.getElementById('xName').value || 'X';
+ const yName = document.getElementById('yName').value || 'Y';
+ const aStr = fmt(a), bStr = fmt(Math.abs(b));
+ const sign = b >= 0 ? '+' : '−';
+ explEl.innerHTML =
+ `${yName} = <span class="step-val">${aStr}</span> ${sign} <span class="step-val">${bStr}</span> × <span class="step-val">${fmt(predictionX)}</span> = <span class="pred-val">${fmt(yHat)}</span>`;
+ }
+ draw();
+}
+
+function syncPredictLabels() { /* predict removed */ }
 document.getElementById('pasteArea').addEventListener('paste', function(e) {
-  e.preventDefault();
-  const text = (e.clipboardData || window.clipboardData).getData('text');
-  parsePaste(text);
-  this.value = '';
+ e.preventDefault();
+ const text = (e.clipboardData || window.clipboardData).getData('text');
+ parsePaste(text);
+ this.value = '';
 });
+/* Shift+Enter adds a newline; Enter alone parses and clears */
+document.getElementById('pasteArea').addEventListener('keydown', function(e) {
+ if (e.key === 'Enter' && !e.shiftKey) {
+ e.preventDefault();
+ if (this.value.trim()) { parsePaste(this.value); this.value = ''; }
+ }
+});
+/* Only auto-parse if the text looks like pasted tabular data (has tab or newline) */
 document.getElementById('pasteArea').addEventListener('input', function() {
-  if (this.value.trim()) {
-    parsePaste(this.value);
-    this.value = '';
-  }
+ if (/\t/.test(this.value)) { parsePaste(this.value); this.value = ''; }
 });
 
 function parsePaste(text) {
-  const lines = text.trim().split(/\r?\n/);
-  let added = 0;
-  lines.forEach(line => {
-    if (!line.trim()) return;
-    const parts = line.split(/\t|;|,/);
-    if (parts.length >= 2) {
-      const x = parts[0].replace(',','.').trim();
-      const y = parts[1].replace(',','.').trim();
-      if (!isNaN(parseFloat(x)) && !isNaN(parseFloat(y))) {
-        addRow(parseFloat(x), parseFloat(y));
-        added++;
-      }
-    }
-  });
-  if (added > 0) plotData();
+ const lines = text.trim().split(/\r?\n/);
+ let added = 0;
+ lines.forEach(line => {
+ if (!line.trim()) return;
+ const parts = line.split(/\t|;|,/);
+ if (parts.length >= 2) {
+ const x = parseFloat(parts[0].replace(',','.').trim());
+ const y = parseFloat(parts[1].replace(',','.').trim());
+ if (!isNaN(x) && !isNaN(y)) { addRow(x, y); added++; }
+ }
+ });
+ if (added > 0) plotData();
 }
 
 /* Column name sync */
+function syncAllNames() {
+ const xName = document.getElementById('xName').value || 'X';
+ const yName = document.getElementById('yName').value || 'Y';
+ document.getElementById('colLblX').textContent = xName;
+ document.getElementById('colLblY').textContent = yName;
+ document.querySelectorAll('.dyn-xname').forEach(el => el.textContent = xName);
+ document.querySelectorAll('.dyn-yname').forEach(el => el.textContent = yName);
+ // Update error panel column headers
+ const cx = document.getElementById('errColX');
+ const cy = document.getElementById('errColY');
+ if (cx) cx.innerHTML = `<span class="dyn-xname">${xName}</span>`;
+ if (cy) cy.innerHTML = `<span class="dyn-yname">${yName}</span> (verkligt)`;
+}
 document.getElementById('xName').addEventListener('input', function() {
-  document.getElementById('thX').textContent = this.value || 'X';
+ syncAllNames();
+ draw();
 });
 document.getElementById('yName').addEventListener('input', function() {
-  document.getElementById('thY').textContent = this.value || 'Y';
+ syncAllNames();
+ draw();
 });
 
-/* Add a few blank rows on load */
+/* Seed blank rows */
 addRow(); addRow(); addRow(); addRow();
 
-/* ═══════════════════════════════════════════════
-   FIT QUALITY
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════
+ FIT QUALITY
+═══════════════════════════════ */
 function calcFit(pts, a, b) {
-  if (pts.length === 0) return null;
-  // Mean absolute error relative to y-range
-  const mae = pts.reduce((s,p) => s + Math.abs((a + b*p.x) - p.y), 0) / pts.length;
-  const yRange = Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y));
-  if (yRange === 0) return 100;
-  const score = Math.max(0, 100 - (mae/yRange)*100);
-  return score;
+ if (pts.length === 0) return null;
+ const mae = pts.reduce((s,p) => s + Math.abs((a + b*p.x) - p.y), 0) / pts.length;
+ const yRange = Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y));
+ if (yRange === 0) return 100;
+ return Math.max(0, 100 - (mae/yRange)*100);
 }
 
 function updateFitBar(pts, a, b) {
-  const bar = document.getElementById('fitBar');
-  if (pts.length < 2) { bar.style.display='none'; return; }
-  bar.style.display = 'flex';
-  const score = calcFit(pts, a, b);
-  const fill  = document.getElementById('fitFill');
-  const scoreEl = document.getElementById('fitScore');
-  const msg   = document.getElementById('fitMsg');
-  const pct   = score.toFixed(0);
-  fill.style.width = pct + '%';
-  scoreEl.textContent = pct + '%';
-
-  let color, txt;
-  if (score >= 85)     { color='#38e8c8'; txt='🎉 Utmärkt passning!'; }
-  else if (score >= 65){ color='#ffd166'; txt='👍 Bra, fortsätt justera!'; }
-  else if (score >= 40){ color='#ff8c42'; txt='🔧 Fortfarande ganska långt ifrån…'; }
-  else                 { color='#f472b6'; txt='💡 Testa att flytta reglagen mer!'; }
-
-  fill.style.background = color;
-  scoreEl.style.color = color;
-  msg.textContent = txt;
+ const bar = document.getElementById('fitBar');
+ if (pts.length < 2) { updateErrorPanel([], a, b); return; }
+ const score = calcFit(pts, a, b);
+ const pct = score.toFixed(0);
+ document.getElementById('fitFill').style.width = pct + '%';
+ document.getElementById('fitScore').textContent = pct + '%';
+ let color, txt;
+ if (score >= 85) { color = '#0a7c6e'; txt = ' Utmärkt passning!'; }
+ else if (score >= 65) { color = '#a07500'; txt = ' Bra, fortsätt justera!'; }
+ else if (score >= 40) { color = '#c45f18'; txt = ' Ganska långt ifrån…'; }
+ else { color = '#b5366a'; txt = ' Flytta reglagen mer!'; }
+ document.getElementById('fitFill').style.background = color;
+ document.getElementById('fitScore').style.color = color;
+ document.getElementById('fitMsg').textContent = txt;
+ updateErrorPanel(pts, a, b);
 }
 
-/* ═══════════════════════════════════════════════
-   GRAPH
-═══════════════════════════════════════════════ */
+function updateErrorPanel(pts, a, b) {
+ if (pts.length < 2) return;
+ const xName = document.getElementById('xName').value || 'X';
+ const yName = document.getElementById('yName').value || 'Y';
+
+ // Update column headers
+ const cxEl = document.getElementById('errColX');
+ const cyEl = document.getElementById('errColY');
+ if (cxEl) cxEl.innerHTML = `<span class="dyn-xname">${xName}</span>`;
+ if (cyEl) cyEl.innerHTML = `<span class="dyn-yname">${yName}</span> (verkligt)`;
+
+ // Per-point errors
+ const errors = pts.map(p => {
+ const yHat = a + b * p.x;
+ const diff = p.y - yHat;
+ return { x: p.x, y: p.y, yHat, diff, sq: diff * diff };
+ });
+
+ const mae = errors.reduce((s, e) => s + Math.abs(e.diff), 0) / errors.length;
+ const mse = errors.reduce((s, e) => s + e.sq, 0) / errors.length;
+ const score = calcFit(pts, a, b);
+
+ document.getElementById('errMAE').textContent = mae.toFixed(2);
+ document.getElementById('errMSE').textContent = mse.toFixed(2);
+ const fitEl = document.getElementById('errFit');
+ fitEl.textContent = score.toFixed(0) + '%';
+ fitEl.style.color = score >= 85 ? '#0a7c6e' : score >= 65 ? '#a07500' : score >= 40 ? '#c45f18' : '#b5366a';
+
+ // Rows
+ const container = document.getElementById('errorRows');
+ container.innerHTML = '';
+ errors.forEach(e => {
+ const row = document.createElement('div');
+ row.className = 'error-row';
+ const diffClass = e.diff >= 0 ? 'pos' : 'neg';
+ const diffSign = e.diff >= 0 ? '+' : '';
+ row.innerHTML = `
+ <span class="err-x">${fmt(e.x)}</span>
+ <span class="err-y">${fmt(e.y)}</span>
+ <span class="err-yhat">${fmt(e.yHat)}</span>
+ <span class="err-diff ${diffClass}">${diffSign}${e.diff.toFixed(2)}</span>
+ <span class="err-sq">${e.sq.toFixed(2)}</span>`;
+ container.appendChild(row);
+ });
+}
+
+/* ═══════════════════════════════
+ GRAPH
+═══════════════════════════════ */
 const SVG_W=560, SVG_H=380;
 const PAD={top:30,right:30,bottom:48,left:54};
 
-const iSlider   = document.getElementById('interceptSlider');
-const sSlider   = document.getElementById('slopeSlider');
-const iVal      = document.getElementById('interceptVal');
-const sVal      = document.getElementById('slopeVal');
-const eqBox     = document.getElementById('equationDisplay');
-const showCircle   = document.getElementById('showCircle');
-const showTriangle = document.getElementById('showTriangle');
+const iSlider = document.getElementById('interceptSlider');
+const sSlider = document.getElementById('slopeSlider');
+const iVal = document.getElementById('interceptVal');
+const sVal = document.getElementById('slopeVal');
+const eqBox = document.getElementById('equationDisplay');
 
 function getAxisRange() {
-  // Dynamic range based on data
-  if (dataPoints.length === 0) return {xMin:-6,xMax:6,yMin:-12,yMax:12};
-  const xs = dataPoints.map(p=>p.x), ys = dataPoints.map(p=>p.y);
-  const xPad = Math.max(2, (Math.max(...xs)-Math.min(...xs))*.25);
-  const yPad = Math.max(2, (Math.max(...ys)-Math.min(...ys))*.3);
-  return {
-    xMin: Math.floor(Math.min(-1,...xs)-xPad),
-    xMax: Math.ceil(Math.max(1,...xs)+xPad),
-    yMin: Math.floor(Math.min(-1,...ys)-yPad),
-    yMax: Math.ceil(Math.max(1,...ys)+yPad),
-  };
+ if (dataPoints.length === 0) return {xMin:-6,xMax:6,yMin:-12,yMax:12};
+ const xs = dataPoints.map(p=>p.x), ys = dataPoints.map(p=>p.y);
+ const xPad = Math.max(2, (Math.max(...xs)-Math.min(...xs))*.25);
+ const yPad = Math.max(2, (Math.max(...ys)-Math.min(...ys))*.3);
+ return {
+ xMin: Math.floor(Math.min(-1,...xs)-xPad),
+ xMax: Math.ceil(Math.max(1,...xs)+xPad),
+ yMin: Math.floor(Math.min(-1,...ys)-yPad),
+ yMax: Math.ceil(Math.max(1,...ys)+yPad),
+ };
 }
 
 function draw() {
-  const a = parseFloat(iSlider.value);
-  const b = parseFloat(sSlider.value);
-  const {xMin,xMax,yMin,yMax} = getAxisRange();
+ // Read from internal state (not slider, which is quantized by step attr)
+ const a = currentA;
+ const b = currentB;
+ const {xMin,xMax,yMin,yMax} = getAxisRange();
 
-  const xS = x => PAD.left+(x-xMin)/(xMax-xMin)*(SVG_W-PAD.left-PAD.right);
-  const yS = y => SVG_H-PAD.bottom-(y-yMin)/(yMax-yMin)*(SVG_H-PAD.top-PAD.bottom);
+ const xS = x => PAD.left+(x-xMin)/(xMax-xMin)*(SVG_W-PAD.left-PAD.right);
+ const yS = y => SVG_H-PAD.bottom-(y-yMin)/(yMax-yMin)*(SVG_H-PAD.top-PAD.bottom);
 
-  const svg = document.getElementById('graph');
-  svg.innerHTML='';
+ const svg = document.getElementById('graph');
+ svg.innerHTML = '';
 
-  function el(tag,attrs,text){
-    const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
-    if(attrs) for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
-    if(text!==undefined) e.textContent=text;
-    return e;
-  }
+ function el(tag, attrs, text) {
+ const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+ if (attrs) for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, v);
+ if (text !== undefined) e.textContent = text;
+ return e;
+ }
 
-  // clip
-  const defs=el('defs');
-  const clip=el('clipPath',{id:'gc'});
-  clip.appendChild(el('rect',{x:PAD.left,y:PAD.top,width:SVG_W-PAD.left-PAD.right,height:SVG_H-PAD.top-PAD.bottom}));
-  defs.appendChild(clip);
-  svg.appendChild(defs);
+ // clip
+ const defs = el('defs');
+ const clip = el('clipPath', {id:'gc'});
+ clip.appendChild(el('rect',{x:PAD.left,y:PAD.top,width:SVG_W-PAD.left-PAD.right,height:SVG_H-PAD.top-PAD.bottom}));
+ defs.appendChild(clip);
+ svg.appendChild(defs);
 
-  // grid
-  const xStep = niceStep(xMax-xMin, 8);
-  const yStep = niceStep(yMax-yMin, 8);
-  for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10))
-    svg.appendChild(el('line',{x1:xS(x),y1:PAD.top,x2:xS(x),y2:SVG_H-PAD.bottom,
-      stroke:Math.abs(x)<1e-9?'#3a4060':'#1e2235','stroke-width':Math.abs(x)<1e-9?1.5:1}));
-  for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y=+(y+yStep).toFixed(10))
-    svg.appendChild(el('line',{x1:PAD.left,y1:yS(y),x2:SVG_W-PAD.right,y2:yS(y),
-      stroke:Math.abs(y)<1e-9?'#3a4060':'#1e2235','stroke-width':Math.abs(y)<1e-9?1.5:1}));
+ // background
+ svg.appendChild(el('rect',{x:0,y:0,width:SVG_W,height:SVG_H,fill:'#f0ede8'}));
 
-  // axes
-  if(yMin<=0 && yMax>=0)
-    svg.appendChild(el('line',{x1:PAD.left,y1:yS(0),x2:SVG_W-PAD.right,y2:yS(0),stroke:'#4a5070','stroke-width':1.5}));
-  if(xMin<=0 && xMax>=0)
-    svg.appendChild(el('line',{x1:xS(0),y1:PAD.top,x2:xS(0),y2:SVG_H-PAD.bottom,stroke:'#4a5070','stroke-width':1.5}));
+ // grid
+ const xStep = niceStep(xMax-xMin, 8);
+ const yStep = niceStep(yMax-yMin, 8);
 
-  // tick labels
-  for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10)) {
-    const xf=+x.toFixed(6);
-    if(Math.abs(xf)<xStep*0.01) continue;
-    svg.appendChild(el('line',{x1:xS(xf),y1:yS(0)-3,x2:xS(xf),y2:yS(0)+3,stroke:'#4a5070','stroke-width':1}));
-    svg.appendChild(el('text',{x:xS(xf),y:yS(0)+16,'text-anchor':'middle',
-      fill:'#5a6080','font-size':'10','font-family':'Nunito Sans,sans-serif'},fmtTick(xf)));
-  }
-  for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y=+(y+yStep).toFixed(10)) {
-    const yf=+y.toFixed(6);
-    if(Math.abs(yf)<yStep*0.01) continue;
-    svg.appendChild(el('line',{x1:xS(0)-3,y1:yS(yf),x2:xS(0)+3,y2:yS(yf),stroke:'#4a5070','stroke-width':1}));
-    svg.appendChild(el('text',{x:xS(0)-7,y:yS(yf)+4,'text-anchor':'end',
-      fill:'#5a6080','font-size':'10','font-family':'Nunito Sans,sans-serif'},fmtTick(yf)));
-  }
+ for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10)) {
+ const isZero = Math.abs(x) < 1e-9;
+ svg.appendChild(el('line',{x1:xS(x),y1:PAD.top,x2:xS(x),y2:SVG_H-PAD.bottom,
+ stroke: isZero ? '#b0aaa0' : '#ddd9d2', 'stroke-width': isZero ? 1.5 : 1}));
+ }
+ for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y=+(y+yStep).toFixed(10)) {
+ const isZero = Math.abs(y) < 1e-9;
+ svg.appendChild(el('line',{x1:PAD.left,y1:yS(y),x2:SVG_W-PAD.right,y2:yS(y),
+ stroke: isZero ? '#b0aaa0' : '#ddd9d2', 'stroke-width': isZero ? 1.5 : 1}));
+ }
 
-  // axis names (use variable names if set)
-  const xName = document.getElementById('xName').value || 'X';
-  const yName = document.getElementById('yName').value || 'Y';
-  svg.appendChild(el('text',{x:SVG_W-PAD.right-2,y:yS(0)+16,'text-anchor':'end',
-    fill:'#6a70a0','font-size':'13','font-family':'Nunito,sans-serif','font-weight':'800','font-style':'italic'},xName));
-  svg.appendChild(el('text',{x:xS(0)+8,y:PAD.top+2,'text-anchor':'start',
-    fill:'#6a70a0','font-size':'13','font-family':'Nunito,sans-serif','font-weight':'800','font-style':'italic'},yName));
+ // tick labels
+ for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10)) {
+ const xf = +x.toFixed(6);
+ if (Math.abs(xf) < xStep*0.01) continue;
+ svg.appendChild(el('text',{x:xS(xf),y:yS(0)+16,'text-anchor':'middle',
+ fill:'#9a9590','font-size':'10','font-family':'DM Mono,monospace'},fmtTick(xf)));
+ }
+ for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y=+(y+yStep).toFixed(10)) {
+ const yf = +y.toFixed(6);
+ if (Math.abs(yf) < yStep*0.01) continue;
+ svg.appendChild(el('text',{x:xS(0)-7,y:yS(yf)+4,'text-anchor':'end',
+ fill:'#9a9590','font-size':'10','font-family':'DM Mono,monospace'},fmtTick(yf)));
+ }
 
-  // Data points
-  dataPoints.forEach(p => {
-    if(p.x<xMin||p.x>xMax||p.y<yMin||p.y>yMax) return;
-    // Pink circle with glow
-    const g=el('g');
-    g.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'7',fill:'rgba(244,114,182,.2)'}));
-    g.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'4.5',fill:'#f472b6',stroke:'#10131e','stroke-width':'1.5'}));
-    svg.appendChild(g);
-  });
+ // axis labels
+ const xName = document.getElementById('xName').value || 'X';
+ const yName = document.getElementById('yName').value || 'Y';
+ // X label: bottom-right corner, below tick numbers
+ svg.appendChild(el('text',{x:SVG_W-PAD.right,y:SVG_H-PAD.bottom+14,'text-anchor':'end',
+ fill:'#7a7570','font-size':'13','font-family':'DM Serif Display,serif','font-style':'italic'},xName));
+ // Y label: top of y-axis (original position)
+ svg.appendChild(el('text',{x:xS(0)+8,y:PAD.top-6,'text-anchor':'start',
+ fill:'#7a7570','font-size':'13','font-family':'DM Serif Display,serif','font-style':'italic'},yName));
 
-  // Main line
-  svg.appendChild(el('line',{
-    x1:xS(xMin),y1:yS(a+b*xMin),x2:xS(xMax),y2:yS(a+b*xMax),
-    stroke:'#38e8c8','stroke-width':'2.5','stroke-linecap':'round','clip-path':'url(#gc)'
-  }));
+ // data points
+ dataPoints.forEach(p => {
+ if (p.x<xMin||p.x>xMax||p.y<yMin||p.y>yMax) return;
+ const yHat = a + b*p.x;
+ // residual line
+ svg.appendChild(el('line',{x1:xS(p.x),y1:yS(p.y),x2:xS(p.x),y2:yS(yHat),
+ stroke:'rgba(181,54,106,.3)','stroke-width':'1.5','stroke-dasharray':'3,3','clip-path':'url(#gc)'}));
+ // point
+ svg.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'7',fill:'rgba(181,54,106,.15)'}));
+ svg.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'4.5',fill:'#b5366a',stroke:'#fff','stroke-width':'2'}));
+ });
 
-  // Residual lines (if data)
-  if(dataPoints.length>0) {
-    dataPoints.forEach(p=>{
-      if(p.x<xMin||p.x>xMax) return;
-      const yHat=a+b*p.x;
-      svg.appendChild(el('line',{
-        x1:xS(p.x),y1:yS(p.y),x2:xS(p.x),y2:yS(yHat),
-        stroke:'rgba(244,114,182,.35)','stroke-width':'1.5','stroke-dasharray':'3,3','clip-path':'url(#gc)'
-      }));
-    });
-  }
+ // main line
+ svg.appendChild(el('line',{
+ x1:xS(xMin),y1:yS(a+b*xMin),x2:xS(xMax),y2:yS(a+b*xMax),
+ stroke:'#0a7c6e','stroke-width':'2.5','stroke-linecap':'round','clip-path':'url(#gc)'
+ }));
 
-  // Point X=0
-  if(showCircle.checked) {
-    const py=a;
-    if(py>=yMin&&py<=yMax&&0>=xMin&&0<=xMax) {
-      svg.appendChild(el('circle',{cx:xS(0),cy:yS(py),r:'8',fill:'#ff8c42',stroke:'#10131e','stroke-width':'2.5'}));
-      const lx=xS(0)>SVG_W/2?xS(0)-12:xS(0)+12;
-      const anchor=xS(0)>SVG_W/2?'end':'start';
-      svg.appendChild(el('text',{x:lx,y:yS(py)-10,'text-anchor':anchor,
-        fill:'#ff8c42','font-size':'12','font-family':'Nunito,sans-serif','font-weight':'800'},`(0, ${fmt(py)})`));
-    }
-  }
+ // Prediction point
+ if (predictionX !== null) {
+ const px = predictionX;
+ const py = a + b * px;
+ if (px >= xMin && px <= xMax && py >= yMin && py <= yMax) {
+ // vertical dashed drop-line from x-axis to point
+ svg.appendChild(el('line', {
+ x1: xS(px), y1: yS(0), x2: xS(px), y2: yS(py),
+ stroke: '#6346b0', 'stroke-width': '1.5', 'stroke-dasharray': '4,3',
+ 'clip-path': 'url(#gc)'
+ }));
+ // horizontal dashed line from y-axis to point
+ svg.appendChild(el('line', {
+ x1: xS(xMin), y1: yS(py), x2: xS(px), y2: yS(py),
+ stroke: '#6346b0', 'stroke-width': '1.5', 'stroke-dasharray': '4,3',
+ 'clip-path': 'url(#gc)'
+ }));
+ // glow halo
+ svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '13', fill: 'rgba(99,70,176,.12)' }));
+ svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '7', fill: 'rgba(99,70,176,.25)' }));
+ svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '5', fill: '#6346b0', stroke: '#fff', 'stroke-width': '2' }));
+ // label
+ const lx = xS(px) > SVG_W * 0.65 ? xS(px) - 12 : xS(px) + 12;
+ const anchor = xS(px) > SVG_W * 0.65 ? 'end' : 'start';
+ const yName2 = document.getElementById('yName').value || 'Y';
+ svg.appendChild(el('text', { x: lx, y: yS(py) - 12, 'text-anchor': anchor,
+ fill: '#6346b0', 'font-size': '12', 'font-family': 'DM Sans,sans-serif', 'font-weight': '700' },
+ `${yName2} = ${fmt(py)}`));
+ }
+ }
 
-  // Point X=2
-  if(showTriangle.checked) {
-    const py=a+b*2;
-    if(py>=yMin&&py<=yMax&&2>=xMin&&2<=xMax) {
-      const cx=xS(2),cy=yS(py),s=9;
-      svg.appendChild(el('polygon',{
-        points:`${cx},${cy-s} ${cx-s},${cy+s*.75} ${cx+s},${cy+s*.75}`,
-        fill:'#ff8c42',stroke:'#10131e','stroke-width':'2.5'
-      }));
-      const lx=xS(2)>SVG_W/2?xS(2)-12:xS(2)+12;
-      const anchor=xS(2)>SVG_W/2?'end':'start';
-      svg.appendChild(el('text',{x:lx,y:yS(py)-12,'text-anchor':anchor,
-        fill:'#ff8c42','font-size':'12','font-family':'Nunito,sans-serif','font-weight':'800'},`(2, ${fmt(py)})`));
-    }
-  }
-
-  // UI update
-  iVal.textContent=fmt(a);
-  sVal.textContent=fmt(b);
-  const eq=formatEq(a,b);
-  if(eqBox.textContent!==eq){
-    eqBox.textContent=eq;
-    eqBox.classList.remove('pop');
-    void eqBox.offsetWidth;
-    eqBox.classList.add('pop');
-  }
-  updateSliderBg(iSlider,'#38e8c8');
-  updateSliderBg(sSlider,'#a78bfa');
-  updateFitBar(dataPoints,a,b);
+ // Update UI
+ iVal.textContent = fmt(a);
+ sVal.textContent = fmt(b);
+ const eq = formatEq(a, b);
+ if (eqBox.textContent !== eq) {
+ eqBox.textContent = eq;
+ eqBox.classList.remove('pop');
+ void eqBox.offsetWidth;
+ eqBox.classList.add('pop');
+ }
+ // Keep predict formula chip in sync
+ const pf = document.getElementById('predictFormula'); if (pf) pf.textContent = eq;
+ // Refresh prediction explanation (values may have changed with slider)
+ if (predictionX !== null) {
+ const yHat = a + b * predictionX;
+ document.getElementById('predictResult').textContent = fmt(yHat);
+ const xName = document.getElementById('xName').value || 'X';
+ const yName3 = document.getElementById('yName').value || 'Y';
+ const sign = b >= 0 ? '+' : '−';
+ document.getElementById('predictExplanation').innerHTML =
+ `${yName3} = <span class="step-val">${fmt(a)}</span> ${sign} <span class="step-val">${fmt(Math.abs(b))}</span> × <span class="step-val">${fmt(predictionX)}</span> = <span class="pred-val">${fmt(yHat)}</span>`;
+ }
+ updateSliderBg(iSlider, '#0a7c6e');
+ updateSliderBg(sSlider, '#6346b0');
+ updateFitBar(dataPoints, a, b);
+ updateNudgeExamples();
 }
 
-function fmt(n){ return n%1===0?String(n):n.toFixed(2).replace(/\.?0+$/,''); }
-function fmtTick(n){ return n%1===0?String(n):n.toFixed(1); }
+function fmt(n) { return n%1===0 ? String(n) : n.toFixed(2).replace(/\.?0+$/,''); }
+function fmtTick(n) { return n%1===0 ? String(n) : n.toFixed(1); }
 
-function formatEq(a,b){
-  const aS=fmt(a),bA=Math.abs(b),bS=fmt(bA);
-  if(b===0) return `Y = ${aS}`;
-  const sign=b>0?'+':'−';
-  if(bA===1) return `Y = ${aS} ${sign} X`;
-  return `Y = ${aS} ${sign} ${bS}X`;
+function formatEq(a, b) {
+ const xN = document.getElementById('xName').value || 'X';
+ const yN = document.getElementById('yName').value || 'Y';
+ const aS=fmt(a), bA=Math.abs(b), bS=fmt(bA);
+ if (b===0) return `${yN} = ${aS}`;
+ const sign = b>0 ? '+' : '−';
+ if (bA===1) return `${yN} = ${aS} ${sign} ${xN}`;
+ return `${yN} = ${aS} ${sign} ${bS}${xN}`;
 }
 
-function updateSliderBg(slider,color){
-  const pct=(parseFloat(slider.value)-parseFloat(slider.min))/(parseFloat(slider.max)-parseFloat(slider.min))*100;
-  slider.style.background=`linear-gradient(to right,${color} 0%,${color} ${pct}%,#2e3350 ${pct}%)`;
+function updateSliderBg(slider, color) {
+ const pct = (parseFloat(slider.value)-parseFloat(slider.min))/(parseFloat(slider.max)-parseFloat(slider.min))*100;
+ slider.style.background = `linear-gradient(to right,${color} 0%,${color} ${pct}%,#ddd9d2 ${pct}%)`;
 }
 
-function niceStep(range,maxTicks){
-  const raw=range/maxTicks;
-  const mag=Math.pow(10,Math.floor(Math.log10(raw)));
-  const norm=raw/mag;
-  let nice;
-  if(norm<1.5) nice=1;
-  else if(norm<3.5) nice=2;
-  else if(norm<7.5) nice=5;
-  else nice=10;
-  return nice*mag;
+function niceStep(range, maxTicks) {
+ const raw = range/maxTicks;
+ const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+ const norm = raw/mag;
+ let nice;
+ if (norm < 1.5) nice = 1;
+ else if (norm < 3.5) nice = 2;
+ else if (norm < 7.5) nice = 5;
+ else nice = 10;
+ return nice * mag;
 }
 
-function toggleStep(header){ header.parentElement.classList.toggle('open'); }
-
-iSlider.addEventListener('input',draw);
-sSlider.addEventListener('input',draw);
-showCircle.addEventListener('change',draw);
-showTriangle.addEventListener('change',draw);
-document.getElementById('xName').addEventListener('input',draw);
-document.getElementById('yName').addEventListener('input',draw);
+iSlider.addEventListener('input', () => { currentA = parseFloat(iSlider.value); draw(); });
+sSlider.addEventListener('input', () => { currentB = parseFloat(sSlider.value); draw(); });
 draw();
 </script>
 </body>
