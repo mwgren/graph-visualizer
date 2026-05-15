@@ -595,24 +595,23 @@
  }
  .error-rows-header {
  display: grid;
- grid-template-columns: 1fr 1.1fr 1.1fr 1fr 1fr;
- gap: .3rem;
- padding: .3rem .4rem;
+ grid-template-columns: .8fr 1fr 1fr 1fr .8fr;
+ gap: .5rem;
+ padding: .55rem .6rem;
  background: var(--surface2);
  border-radius: 6px 6px 0 0;
- font-family: 'DM Mono', monospace;
- font-size: .68rem;
- letter-spacing: .05em;
- text-transform: uppercase;
+ font-family: 'DM Sans', sans-serif;
+ font-size: .72rem;
+ font-weight: 700;
  color: var(--muted);
  border: 1.5px solid var(--border);
  border-bottom: none;
  }
  .error-row {
  display: grid;
- grid-template-columns: 1fr 1.1fr 1.1fr 1fr 1fr;
- gap: .3rem;
- padding: .3rem .4rem;
+ grid-template-columns: .8fr 1fr 1fr 1fr .8fr;
+ gap: .5rem;
+ padding: .55rem .6rem;
  border: 1.5px solid var(--border);
  border-top: none;
  font-family: 'DM Mono', monospace;
@@ -629,18 +628,68 @@
  .err-diff.pos { color: #c45f18; }
  .err-diff.neg { color: #6346b0; }
  .error-row .err-sq { color: var(--muted); }
+    summary.nudge-info-title {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    summary.nudge-info-title::-webkit-details-marker { display: none; }
+    summary.nudge-info-title::marker { display: none; }
+
+    .info-q {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e8d880;
+      border: 1px solid #c8b840;
+      border-radius: 50%;
+      width: 15px; height: 15px;
+      font-size: .65rem; font-weight: 700;
+      color: #7a6010;
+      vertical-align: middle;
+      margin-left: .2rem;
+    }
+    .sq-info-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: 50%;
+      width: 15px; height: 15px;
+      font-size: .65rem; font-weight: 700;
+      color: var(--muted); cursor: pointer;
+      padding: 0; vertical-align: middle;
+      transition: all .15s;
+    }
+    .sq-info-btn:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
+    .sq-info-box {
+      background: #fef9ec;
+      border: 1.5px solid #f0dfa0;
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      margin: .6rem 0 .75rem;
+      font-size: .82rem;
+      color: var(--text);
+      line-height: 1.6;
+      box-shadow: var(--shadow-sm);
+    }
 
  /* ── NUDGE INFO CARDS ── */
  .nudge-info-row {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: .65rem;
- margin-bottom: .85rem;
- }
- @media(max-width:520px){ .nudge-info-row { grid-template-columns: 1fr; } }
+      display: flex;
+      flex-direction: row;
+      gap: .65rem;
+      margin-bottom: .85rem;
+      align-items: flex-start;
+    }
+ @media(max-width:520px){ .nudge-info-row { flex-direction: column; } }
  .nudge-info-card {
- background: var(--surface2);
- border: 1.5px solid var(--border);
+ background: #fef9ec;
+ border: 1.5px solid #f0dfa0;
  border-radius: 9px;
  padding: .75rem .9rem;
  }
@@ -814,9 +863,8 @@
 <div class="container">
 
  <header>
-<h1>Anpassa en linjär modell till data</h1>
+<h1>Träna en linjär modell</h1>
 </header>
-
 
 
  <!-- ══ SECTION 1: DATA ══ -->
@@ -830,6 +878,10 @@
  <span class="toggle-arrow">▶</span>
  </div>
  <div class="section-body">
+
+ <div style="margin-bottom:.75rem">
+  <button class="btn btn-default" onclick="loadDefaultData()">Ladda exempeldata: glass &amp; temperatur</button>
+ </div>
 
  <div class="col-names">
  <div class="col-name-wrap x-col">
@@ -910,41 +962,28 @@
  <div class="ml-box">
 
  <!-- Section: Justera -->
- <div class="ml-section-title" style="margin-top:1rem"> Gradientmetoden — ett steg i rätt riktning</div>
+ <div class="ml-section-title" style="margin-top:1rem">Hur justerar datorn linjen?</div>
 
- <div class="nudge-info-row">
- <details class="nudge-info-card">
- <summary class="nudge-info-title">Hur justeras skärningspunkten α?</summary>
- <div class="nudge-info-body">
- För varje datapunkt: ta det verkliga värdet minus vad linjen förutsäger. Det kallas felmarginalen — hur fel linjen är för den punkten.<br><br>
- Ta medelvärdet av alla felmarginaler. Det visar om linjen i snitt är för hög eller för låg.<br><br>
- Ny skärningspunkt =<br>
- <span class="nudge-formula">gammal skärningspunkt<br>+ inlärningshastighet (0.1) × medelfelmarginal</span><br><br>
- Positivt medel → linjen är för låg → skärningspunkten ökar.<br>
- Negativt medel → linjen är för hög → skärningspunkten minskar.
- <span class="nudge-example" id="exampleAlpha">Lägg in data för att se ett exempel.</span>
- </div>
- </details>
- <details class="nudge-info-card">
- <summary class="nudge-info-title">Hur justeras lutningen β?</summary>
- <div class="nudge-info-body">
- Samma idé, men punkter med höga x-värden ges mer vikt — de påverkas mest av lutningen.<br><br>
- Multiplicera varje felmarginal med punktens x-värde. Ta medelvärdet av dessa produkter.<br><br>
- Ny lutning =<br>
- <span class="nudge-formula">gammal lutning<br>+ inlärningshastighet (0.1) × medel av (varje punkts x-värde × dess felmarginal)</span><br><br>
- Om punkter långt ut på x-axeln ligger ovanför linjen → öka lutningen.<br>
- Om de ligger under → minska lutningen.
- <span class="nudge-example" id="exampleBeta">Lägg in data för att se ett exempel.</span>
- </div>
- </details>
- </div>
+          <details class="nudge-info-card" style="margin-bottom:.85rem">
+            <summary class="nudge-info-title">Visa förklaring <span class="info-q">?</span></summary>
+            <div class="nudge-info-body">
+              Tänk dig att du försöker rita en linje som visar sambandet mellan temperatur och glassförsäljning. Linjen börjar fel — det är meningen! Varje knapptryckning förbättrar den lite. Exemplet nedan uppdateras i realtid.<br><br>
+              <b>1. Beräkna ny skärningspunkt</b><br>
+              I formeln y = α + β·x är α ett plus — det adderas rakt av utan att multipliceras med något. Därför justerar vi α med genomsnittet av (verkligt − förutsagt). Tecknet på genomsnittet avgör åt vilket håll: positivt → α ökar, negativt → α minskar.<br><br>
+              <b>2. Beräkna ny lutning</b><br>
+              I formeln y = α + β·x multipliceras β med x. Därför justerar vi β med genomsnittet av (verkligt − förutsagt) × x — x måste vara med eftersom det är x som avgör hur stor effekt β har på varje punkt.<br><br>
+              <b>3. Uppdatera båda på en gång</b><br>
+              Skärningspunkten och lutningen räknas ut från samma felmarginaler och uppdateras samtidigt — annars skulle den ena förändringen störa den andra.<br><br>
+              <span class="nudge-example" id="exampleAlpha">Ladda exempeldata för att se uträkningen.</span>
+            </div>
+          </details>
 
  <div class="nudge-buttons" style="margin-bottom:1rem">
- <button class="btn btn-nudge btn-nudge-intercept" id="interceptNudge" onclick="nudgeIntercept()">
- Ett steg: skärningspunkt &nbsp;<span class="nudge-arrow">&#8594;</span>
+ <button class="btn btn-nudge btn-nudge-intercept" id="nudgeBtn" onclick="nudgeBoth(1)">
+ Justera 1 steg &nbsp;<span class="nudge-arrow">&#8594;</span>
  </button>
- <button class="btn btn-nudge btn-nudge-slope" id="slopeNudge" onclick="nudgeSlope()">
- Ett steg: lutning &nbsp;<span class="nudge-arrow">&#8594;</span>
+ <button class="btn btn-nudge btn-nudge-slope" id="nudgeBtn10" onclick="nudgeBoth(10)">
+ Justera 10 steg &nbsp;<span class="nudge-arrow">&#8594;&#8594;</span>
  </button>
  </div>
 
@@ -967,7 +1006,7 @@
  <span class="error-stat-value" id="errMAE">—</span>
  </div>
  <div class="error-stat">
- <span class="error-stat-label">Kvadratfel (MSE)</span>
+ <span class="error-stat-label">Genomsnitt av Fel² <button class="sq-info-btn" onclick="toggleSqInfo(event)">?</button></span>
  <span class="error-stat-value" id="errMSE">—</span>
  </div>
  <div class="error-stat highlight">
@@ -975,12 +1014,15 @@
  <span class="error-stat-value" id="errFit">—</span>
  </div>
  </div>
+ <div class="sq-info-box" id="sqInfoBox" style="display:none">
+   Vi kvadrerar felet för att positiva och negativa fel inte ska ta ut varandra. Ett minus-fel skulle annars ta bort ett plus-fel, och vi skulle tro att linjen passar bättre än den gör. Det vi är intresserade av är avståndet från noll — hur fel linjen är — oavsett riktning. Ett fel på −5 är lika allvarligt som ett fel på +5.
+ </div>
  <div class="error-rows-wrap">
  <div class="error-rows-header">
  <span id="errColX"><span class="dyn-xname">X</span></span>
  <span id="errColY"><span class="dyn-yname">Y</span> (verkligt)</span>
- <span>Ŷ (förutsagt)</span>
- <span>Fel (Y − Ŷ)</span>
+ <span id="errColYhat"><span class="dyn-yname">Y</span> (förutsagt)</span>
+ <span>Fel (verkligt − förutsagt)</span>
  <span>Fel²</span>
  </div>
  <div id="errorRows"></div>
@@ -999,6 +1041,12 @@
 /* ═══════════════════════════════
  SECTION TOGGLE
 ═══════════════════════════════ */
+function toggleSqInfo(e) {
+  e.stopPropagation();
+  const box = document.getElementById('sqInfoBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
 function toggleSection(id) {
  document.getElementById(id).classList.toggle('open');
 }
@@ -1025,6 +1073,20 @@ function addRow(xVal='', yVal='') {
  <input type="number" class="iy" step="any" value="${yVal}" placeholder="y-värde" oninput="scheduleReplot()">
  <button class="del-btn" onclick="this.parentElement.remove(); scheduleReplot();" title="Ta bort"></button>`;
  list.appendChild(div);
+}
+
+function loadDefaultData() {
+ document.getElementById('rowsList').innerHTML = '';
+ dataPoints = [];
+ document.getElementById('xName').value = 'Temperatur (°C)';
+ document.getElementById('yName').value = 'Glassförsäljning';
+ syncAllNames();
+ const data = [
+   [14, 20], [16, 28], [18, 35], [20, 42], [22, 51],
+   [24, 60], [26, 74], [28, 85], [30, 98], [32, 110]
+ ];
+ data.forEach(([x, y]) => addRow(x, y));
+ plotData();
 }
 
 function clearData() {
@@ -1065,15 +1127,38 @@ function scheduleReplot() {
  }, 300);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   autoFitSuggestion(pts)
+   ─────────────────────────────────────────────────────────────
+   Sets the starting parameters when data is first plotted.
+
+   Starting point:
+     α = mean(Y)   — horizontal line through the vertical centre
+     β = 0         — completely flat (slope ignored)
+
+   Why this starting point?
+   - It is the simplest meaningful model: predict the same value
+     for every X (the average Y). This is called the "null model".
+   - β = 0 means the slope update has to build from scratch,
+     making the learning process clearly visible step by step.
+   - The intercept starts at mean(Y) so the line is at least
+     centred on the data, even if the slope is wrong.
+
+   Formula:
+     mean(Y) = Σ(y_i) / n
+═══════════════════════════════════════════════════════════════ */
 function autoFitSuggestion(pts) {
- // Intentionally BAD random starting point so the user has to find the fit themselves
- if (pts.length < 2) return;
- // Pick a random skärningspunkt and slope that is clearly off
- const randIntercept = (Math.random() * 16 - 8).toFixed(1); // -8 to +8, likely wrong
- const randSlope = (Math.random() * 6 - 3).toFixed(2); // -3 to +3, likely wrong
- currentA = parseFloat(randIntercept);
- currentB = parseFloat(randSlope);
- syncSlidersFromState();
+  if (pts.length < 2) return;
+
+  const n     = pts.length;
+
+  // mean(Y) = sum of all y-values / n
+  const meanY = pts.reduce((sum, p) => sum + p.y, 0) / n;
+
+  currentA = meanY; // α = mean(Y): line centred vertically on the data
+  currentB = 0;     // β = 0: flat line — slope must be learned from scratch
+
+  syncSlidersFromState();
 }
 
 /* ═══════════════════════════════
@@ -1097,79 +1182,177 @@ function syncSlidersFromState() {
  syncOne(sSlider, currentB);
 }
 
-const LEARN_RATE = 0.15; // 15 % step — visible movement every press
+/* ═══════════════════════════════════════════════════════════════
+   CONSTANTS
+   ─────────────────────────────────────────────────────────────
+   LEARN_RATE: the base learning rate η used for the intercept.
+   A fixed value of 0.1 works well — the intercept update is
+   in the same units as Y, so steps are naturally well-scaled.
+═══════════════════════════════════════════════════════════════ */
+const LEARN_RATE   = 0.1;
+const LEARN_RATE_A = LEARN_RATE; // alias used for intercept
 
-function olsTarget(pts) {
- if (pts.length < 2) return null;
- const n = pts.length;
- const mx = pts.reduce((s,p)=>s+p.x,0)/n;
- const my = pts.reduce((s,p)=>s+p.y,0)/n;
- const num = pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0);
- const den = pts.reduce((s,p)=>s+(p.x-mx)**2,0);
- if (den===0) return null;
- return { a: my - (num/den)*mx, b: num/den };
+
+/* ═══════════════════════════════════════════════════════════════
+   slopeLearningRate(pts)
+   ─────────────────────────────────────────────────────────────
+   The slope update is weighted by x-values, so its gradient is
+   in units of x·Y rather than just Y. Without scaling, datasets
+   with large x-values (e.g. temperatures 14–32) produce huge
+   gradient values and the slope wildly overshoots.
+
+   We scale by variance(x):
+     variance(x) = mean(x²) − mean(x)²
+
+   This makes the slope learning rate proportional to how spread
+   out the x-values are, not their absolute magnitude.
+
+   Example with ice cream data (x = temperature):
+     mean(x)  ≈ 23
+     mean(x²) ≈ 556
+     var(x)   ≈ 556 − 23² = 556 − 529 = 27
+     lr_slope = 0.1 / 27 ≈ 0.0037
+
+   You can verify: if slope updates are still overshooting,
+   var(x) is underestimated — check the x-values in your data.
+═══════════════════════════════════════════════════════════════ */
+function slopeLearningRate(pts) {
+  const n = pts.length;
+
+  // mean(x) = sum of all x-values / n
+  const meanX = pts.reduce((sum, p) => sum + p.x, 0) / n;
+
+  // mean(x²) = sum of all x²-values / n
+  const meanXSquared = pts.reduce((sum, p) => sum + p.x * p.x, 0) / n;
+
+  // variance(x) = mean(x²) − mean(x)²
+  // Guard against zero variance (all x-values identical) with || 1
+  const varianceX = (meanXSquared - meanX * meanX) || 1;
+
+  return LEARN_RATE / varianceX;
 }
 
-function nudgeIntercept() {
- if (dataPoints.length < 2) return flashNudge('interceptNudge');
- const n = dataPoints.length;
- const meanResid = dataPoints.reduce((s,p) => s + (p.y - (currentA + currentB*p.x)), 0) / n;
- currentA = currentA + LEARN_RATE * meanResid;
- syncSlidersFromState();
- flashNudge('interceptNudge');
- draw();
+
+/* ═══════════════════════════════════════════════════════════════
+   nudgeBoth(steps)
+   ─────────────────────────────────────────────────────────────
+   Runs `steps` iterations of gradient descent, updating α and β
+   simultaneously in each iteration.
+
+   Each iteration:
+
+   1. Compute felmarginal for every point:
+        felmarginal_i = y_i − ŷ_i
+        where ŷ_i = currentA + currentB × x_i
+
+   2. Intercept gradient:
+        meanError = sum(felmarginal_i) / n
+        → positive: line too low on average → α should increase
+        → negative: line too high on average → α should decrease
+
+   3. Slope gradient (weighted by x):
+        meanWeightedError = sum(x_i × felmarginal_i) / n
+        → x-weighting gives more influence to points far along x-axis,
+          since those points are most affected by the slope
+
+   4. Update both parameters simultaneously (using residuals from
+      BEFORE either update — this is critical for stability):
+        α_new = α + LEARN_RATE     × meanError
+        β_new = β + slopeLR        × meanWeightedError
+
+   Why simultaneous? If we updated α first, the new α would shift
+   all predictions, changing the residuals, making the β update
+   inconsistent with the α update.
+═══════════════════════════════════════════════════════════════ */
+function nudgeBoth(steps = 1) {
+  if (dataPoints.length < 2) return flashNudge('nudgeBtn');
+
+  for (let step = 0; step < steps; step++) {
+    const n = dataPoints.length;
+
+    // ── Step 1: compute felmarginaler ──────────────────────────
+    let sumErrors         = 0;  // Σ(y_i − ŷ_i)
+    let sumWeightedErrors = 0;  // Σ(x_i × (y_i − ŷ_i))
+
+    dataPoints.forEach(point => {
+      const predicted    = currentA + currentB * point.x;  // ŷ_i = α + β·x_i
+      const felmarginal  = point.y - predicted;             // y_i − ŷ_i
+      sumErrors         += felmarginal;
+      sumWeightedErrors += point.x * felmarginal;           // x_i · (y_i − ŷ_i)
+    });
+
+    // ── Step 2: mean errors (the gradients) ───────────────────
+    const meanError         = sumErrors         / n;  // for α
+    const meanWeightedError = sumWeightedErrors / n;  // for β
+    const lrSlope           = slopeLearningRate(dataPoints);
+
+    // ── Step 3: simultaneous update ───────────────────────────
+    // Both use residuals from BEFORE this update (not recalculated)
+    currentA = currentA + LEARN_RATE_A * meanError;          // α_new = α + η·meanError
+    currentB = currentB + lrSlope      * meanWeightedError;  // β_new = β + η_slope·meanWeightedError
+  }
+
+  syncSlidersFromState();
+  flashNudge('nudgeBtn');
+  draw();
 }
 
-function nudgeSlope() {
- if (dataPoints.length < 2) return flashNudge('slopeNudge');
- const n = dataPoints.length;
- const meanXResid = dataPoints.reduce((s,p) => s + p.x*(p.y - (currentA + currentB*p.x)), 0) / n;
- currentB = currentB + LEARN_RATE * meanXResid;
- syncSlidersFromState();
- flashNudge('slopeNudge');
- draw();
-}
 
+/* ═══════════════════════════════════════════════════════════════
+   updateNudgeExamples()
+   ─────────────────────────────────────────────────────────────
+   Shows the actual numbers for ONE step from the current state
+   so the user can follow the calculation manually.
+   Uses identical math to nudgeBoth(1).
+═══════════════════════════════════════════════════════════════ */
 function updateNudgeExamples() {
- const exA = document.getElementById('exampleAlpha');
- const exB = document.getElementById('exampleBeta');
- if (!exA || !exB) return;
+  const exA = document.getElementById('exampleAlpha');
+  const exB = { innerHTML: '', textContent: '' }; // merged into exA
+  if (!exA) return;
 
- const pts = dataPoints;
- if (pts.length < 2) {
- exA.textContent = 'Lägg in data för att se ett exempel.';
- exB.textContent = 'Lägg in data för att se ett exempel.';
- return;
- }
+  const pts = dataPoints;
+  if (pts.length < 2) {
+    exA.textContent = 'Lägg in data för att se ett exempel.';
+    exB.textContent = 'Lägg in data för att se ett exempel.';
+    return;
+  }
 
- const n = pts.length;
- const a = currentA, b = currentB;
- let sumResid = 0, sumXResid = 0;
- pts.forEach(p => {
- const resid = p.y - (a + b * p.x);
- sumResid += resid;
- sumXResid += p.x * resid;
- });
- const meanResid = sumResid / n;
- const meanXResid = sumXResid / n;
- const aNext = a + LEARN_RATE * meanResid;
- const bNext = b + LEARN_RATE * meanXResid;
+  const n = pts.length;
+  const a = currentA;  // current intercept
+  const b = currentB;  // current slope
 
- const sign = v => v >= 0 ? '+' : '';
+  // ── Compute felmarginaler (same as nudgeBoth step 1) ──────
+  let sumErrors         = 0;  // Σ(y_i − ŷ_i)
+  let sumWeightedErrors = 0;  // Σ(x_i × (y_i − ŷ_i))
+  pts.forEach(point => {
+    const predicted   = a + b * point.x;
+    const felmarginal = point.y - predicted;
+    sumErrors         += felmarginal;
+    sumWeightedErrors += point.x * felmarginal;
+  });
 
- exA.innerHTML =
- `Summa av alla felmarginaler = ${fmt(sumResid)}
-` +
- `Medelvärde = ${fmt(sumResid)} / ${n} = <b>${fmt(meanResid)}</b>
-` +
- `Ny skärningspunkt = ${fmt(a)} + 0.1 × ${fmt(meanResid)} = <b>${fmt(aNext)}</b>`;
+  // ── Mean errors (same as nudgeBoth step 2) ────────────────
+  const meanError         = sumErrors         / n;
+  const meanWeightedError = sumWeightedErrors / n;
+  const lrSlope           = slopeLearningRate(pts);
 
- exB.innerHTML =
- `Summa av (varje punkts x-värde × dess felmarginal) = ${fmt(sumXResid)}
-` +
- `Medelvärde = ${fmt(sumXResid)} / ${n} = <b>${fmt(meanXResid)}</b>
-` +
- `Ny lutning = ${fmt(b)} + 0.1 × ${fmt(meanXResid)} = <b>${fmt(bNext)}</b>`;
+  // ── What the next values would be after one step ──────────
+  const aNext = a + LEARN_RATE_A * meanError;           // α_new
+  const bNext = b + lrSlope      * meanWeightedError;   // β_new
+
+  // Display in three paragraphs — intercept, slope, update
+  exA.innerHTML =
+    `<b>Skärningspunkt</b> — genomsnitt av (verkligt − förutsagt):<br>` +
+    `&nbsp;&nbsp;Summa av (verkligt − förutsagt) = ${fmt(sumErrors)}<br>` +
+    `&nbsp;&nbsp;Genomsnitt = ${fmt(sumErrors)} / ${n} = <b>${fmt(meanError)}</b><br><br>` +
+
+    `<b>Lutning</b> — genomsnitt av (verkligt − förutsagt) × temperatur:<br>` +
+    `&nbsp;&nbsp;Summa av (verkligt − förutsagt) × temperatur = ${fmt(sumWeightedErrors)}<br>` +
+    `&nbsp;&nbsp;Genomsnitt = ${fmt(sumWeightedErrors)} / ${n} = <b>${fmt(meanWeightedError)}</b><br><br>` +
+
+    `<b>Uppdatering</b> — formel: ny = gammal + inlärningshastighet × genomsnitt<br>` +
+    `&nbsp;&nbsp;Ny skärningspunkt = ${fmt(a)} + ${LEARN_RATE_A} × ${fmt(meanError)} = <b>${fmt(aNext)}</b><br>` +
+    `&nbsp;&nbsp;Ny lutning &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ${fmt(b)} + ${fmt(lrSlope)} × ${fmt(meanWeightedError)} = <b>${fmt(bNext)}</b>`;
 }
 
 function flashNudge(id) {
@@ -1178,17 +1361,27 @@ function flashNudge(id) {
  setTimeout(() => btn.classList.remove('nudge-flash'), 300);
 }
 
-/* ═══════════════════════════════
- PREDICTION
-═══════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   PREDICTION
+   ─────────────────────────────────────────────────────────────
+   Given a new x-value entered by the user, compute the predicted
+   y-value using the current line:
+
+     ŷ = α + β × x_input
+       = currentA + currentB × predictionX
+
+   This is just plugging the x-value into the line equation.
+═══════════════════════════════════════════════════════════════ */
 let predictionX = null;
 
 function updatePrediction() {
- const inp = document.getElementById('predictX');
- const val = parseFloat(inp.value);
- predictionX = isNaN(val) ? null : val;
- const a = parseFloat(iSlider.value);
- const b = parseFloat(sSlider.value);
+  const inp = document.getElementById('predictX');
+  const val = parseFloat(inp.value);
+  predictionX = isNaN(val) ? null : val;
+
+  // Read α and β from internal state (not slider, which is quantized)
+  const a = currentA;
+  const b = currentB;
  const resultEl = document.getElementById('predictResult');
  const explEl = document.getElementById('predictExplanation');
 
@@ -1196,7 +1389,8 @@ function updatePrediction() {
  resultEl.textContent = '—';
  explEl.textContent = '';
  } else {
- const yHat = a + b * predictionX;
+  // ŷ = α + β × x_input
+  const yHat = a + b * predictionX;
  resultEl.textContent = fmt(yHat);
  resultEl.classList.add('has-value');
  const xName = document.getElementById('xName').value || 'X';
@@ -1229,16 +1423,21 @@ document.getElementById('pasteArea').addEventListener('input', function() {
 });
 
 function parsePaste(text) {
- const lines = text.trim().split(/\r?\n/);
+ document.querySelectorAll('.data-row').forEach(row => {
+   const ix = row.querySelector('.ix');
+   const iy = row.querySelector('.iy');
+   if (ix.value === '' && iy.value === '') row.remove();
+ });
+ const lines = text.trim().split(/\r\n|\r|\n/);
  let added = 0;
  lines.forEach(line => {
- if (!line.trim()) return;
- const parts = line.split(/\t|;|,/);
- if (parts.length >= 2) {
- const x = parseFloat(parts[0].replace(',','.').trim());
- const y = parseFloat(parts[1].replace(',','.').trim());
- if (!isNaN(x) && !isNaN(y)) { addRow(x, y); added++; }
- }
+   if (!line.trim()) return;
+   const parts = line.split(/\t|;|,/);
+   if (parts.length >= 2) {
+     const x = parseFloat(parts[0].replace(',','.').trim());
+     const y = parseFloat(parts[1].replace(',','.').trim());
+     if (!isNaN(x) && !isNaN(y)) { addRow(x, y); added++; }
+   }
  });
  if (added > 0) plotData();
 }
@@ -1269,79 +1468,142 @@ document.getElementById('yName').addEventListener('input', function() {
 /* Seed blank rows */
 addRow(); addRow(); addRow(); addRow();
 
-/* ═══════════════════════════════
- FIT QUALITY
-═══════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   FIT QUALITY — calcFit()
+
+   We measure how well the line fits using MAE (mean absolute error)
+   expressed as a percentage of the Y-range, then invert it so that
+   100% = perfect fit, 0% = worst possible.
+
+   MAE = mean( |predicted_i − actual_i| )
+       = sum( |ŷ_i − y_i| ) / n
+
+   fit% = max(0,  100  −  (MAE / y_range) × 100 )
+
+   Why divide by y_range? So the score is comparable across datasets
+   with different scales — an error of 5 means something different
+   if Y ranges from 0–10 vs 0–1000.
+═══════════════════════════════════════════════════════════════ */
 function calcFit(pts, a, b) {
- if (pts.length === 0) return null;
- const mae = pts.reduce((s,p) => s + Math.abs((a + b*p.x) - p.y), 0) / pts.length;
- const yRange = Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y));
- if (yRange === 0) return 100;
- return Math.max(0, 100 - (mae/yRange)*100);
+  if (pts.length === 0) return null;
+
+  // Sum of absolute errors: |predicted − actual| for every point
+  let sumAbsoluteError = 0;
+  pts.forEach(point => {
+    const predicted      = a + b * point.x;
+    const absoluteError  = Math.abs(predicted - point.y);
+    sumAbsoluteError    += absoluteError;
+  });
+  const mae = sumAbsoluteError / pts.length;
+
+  // Range of actual Y values (used to normalise the score)
+  const yMax   = Math.max(...pts.map(p => p.y));
+  const yMin   = Math.min(...pts.map(p => p.y));
+  const yRange = yMax - yMin;
+
+  // Guard: if all Y values are equal, any line through them is perfect
+  if (yRange === 0) return 100;
+
+  // Convert MAE to a 0–100 fit score (higher = better)
+  return Math.max(0, 100 - (mae / yRange) * 100);
 }
 
 function updateFitBar(pts, a, b) {
- const bar = document.getElementById('fitBar');
- if (pts.length < 2) { updateErrorPanel([], a, b); return; }
- const score = calcFit(pts, a, b);
- const pct = score.toFixed(0);
- document.getElementById('fitFill').style.width = pct + '%';
- document.getElementById('fitScore').textContent = pct + '%';
- let color, txt;
- if (score >= 85) { color = '#0a7c6e'; txt = ' Utmärkt passning!'; }
- else if (score >= 65) { color = '#a07500'; txt = ' Bra, fortsätt justera!'; }
- else if (score >= 40) { color = '#c45f18'; txt = ' Ganska långt ifrån…'; }
- else { color = '#b5366a'; txt = ' Flytta reglagen mer!'; }
- document.getElementById('fitFill').style.background = color;
- document.getElementById('fitScore').style.color = color;
- document.getElementById('fitMsg').textContent = txt;
- updateErrorPanel(pts, a, b);
+  const bar = document.getElementById('fitBar');
+  if (pts.length < 2) { updateErrorPanel([], a, b); return; }
+
+  const score = calcFit(pts, a, b);
+  const pct   = score.toFixed(0);
+
+  document.getElementById('fitFill').style.width   = pct + '%';
+  document.getElementById('fitScore').textContent  = pct + '%';
+
+  let color, txt;
+  if      (score >= 85) { color = '#0a7c6e'; txt = ' Utmärkt passning!'; }
+  else if (score >= 65) { color = '#a07500'; txt = ' Bra, fortsätt justera!'; }
+  else if (score >= 40) { color = '#c45f18'; txt = ' Ganska långt ifrån…'; }
+  else                  { color = '#b5366a'; txt = ' Flytta reglagen mer!'; }
+
+  document.getElementById('fitFill').style.background = color;
+  document.getElementById('fitScore').style.color      = color;
+  document.getElementById('fitMsg').textContent        = txt;
+
+  updateErrorPanel(pts, a, b);
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   ERROR PANEL — updateErrorPanel()
+
+   Shows a breakdown of errors for every single data point.
+
+   For each point we compute:
+     predicted  (ŷ)  = α + β × x
+     felmarginal      = y − ŷ          (positive = line too low)
+     squared error    = felmarginal²   (penalises big errors more)
+
+   Summary statistics shown:
+     MAE = mean( |felmarginal_i| )       — average absolute error
+     MSE = mean( felmarginal_i² )        — mean squared error
+═══════════════════════════════════════════════════════════════ */
 function updateErrorPanel(pts, a, b) {
- if (pts.length < 2) return;
- const xName = document.getElementById('xName').value || 'X';
- const yName = document.getElementById('yName').value || 'Y';
+  if (pts.length < 2) return;
 
- // Update column headers
- const cxEl = document.getElementById('errColX');
- const cyEl = document.getElementById('errColY');
- if (cxEl) cxEl.innerHTML = `<span class="dyn-xname">${xName}</span>`;
- if (cyEl) cyEl.innerHTML = `<span class="dyn-yname">${yName}</span> (verkligt)`;
+  const xName = document.getElementById('xName').value || 'X';
+  const yName = document.getElementById('yName').value || 'Y';
 
- // Per-point errors
- const errors = pts.map(p => {
- const yHat = a + b * p.x;
- const diff = p.y - yHat;
- return { x: p.x, y: p.y, yHat, diff, sq: diff * diff };
- });
+  // Update column headers to reflect current variable names
+  const cxEl = document.getElementById('errColX');
+  const cyEl = document.getElementById('errColY');
+  if (cxEl) cxEl.innerHTML = `<span class="dyn-xname">${xName}</span>`;
+  if (cyEl) cyEl.innerHTML = `<span class="dyn-yname">${yName}</span> (verkligt)`;
+  const chEl = document.getElementById('errColYhat');
+  if (chEl) chEl.innerHTML = `<span class="dyn-yname">${yName}</span> (förutsagt)`;
 
- const mae = errors.reduce((s, e) => s + Math.abs(e.diff), 0) / errors.length;
- const mse = errors.reduce((s, e) => s + e.sq, 0) / errors.length;
- const score = calcFit(pts, a, b);
+  // Compute per-point errors
+  const rows = pts.map(point => {
+    const predicted     = a + b * point.x;          // ŷ = α + β × x
+    const felmarginal   = point.y - predicted;       // y − ŷ
+    const squaredError  = felmarginal * felmarginal; // (y − ŷ)²
+    return {
+      x:            point.x,
+      y:            point.y,
+      predicted,
+      felmarginal,
+      squaredError
+    };
+  });
 
- document.getElementById('errMAE').textContent = mae.toFixed(2);
- document.getElementById('errMSE').textContent = mse.toFixed(2);
- const fitEl = document.getElementById('errFit');
- fitEl.textContent = score.toFixed(0) + '%';
- fitEl.style.color = score >= 85 ? '#0a7c6e' : score >= 65 ? '#a07500' : score >= 40 ? '#c45f18' : '#b5366a';
+  // MAE: mean of absolute felmarginaler
+  const mae = rows.reduce((sum, r) => sum + Math.abs(r.felmarginal), 0) / rows.length;
 
- // Rows
- const container = document.getElementById('errorRows');
- container.innerHTML = '';
- errors.forEach(e => {
- const row = document.createElement('div');
- row.className = 'error-row';
- const diffClass = e.diff >= 0 ? 'pos' : 'neg';
- const diffSign = e.diff >= 0 ? '+' : '';
- row.innerHTML = `
- <span class="err-x">${fmt(e.x)}</span>
- <span class="err-y">${fmt(e.y)}</span>
- <span class="err-yhat">${fmt(e.yHat)}</span>
- <span class="err-diff ${diffClass}">${diffSign}${e.diff.toFixed(2)}</span>
- <span class="err-sq">${e.sq.toFixed(2)}</span>`;
- container.appendChild(row);
- });
+  // MSE: mean of squared felmarginaler
+  const mse = rows.reduce((sum, r) => sum + r.squaredError, 0) / rows.length;
+
+  const score = calcFit(pts, a, b);
+
+  document.getElementById('errMAE').textContent = mae.toFixed(2);
+  document.getElementById('errMSE').textContent = mse.toFixed(2);
+  const fitEl = document.getElementById('errFit');
+  fitEl.textContent  = score.toFixed(0) + '%';
+  fitEl.style.color  = score >= 85 ? '#0a7c6e' : score >= 65 ? '#a07500' : score >= 40 ? '#c45f18' : '#b5366a';
+
+  // Render one row per data point
+  const container = document.getElementById('errorRows');
+  container.innerHTML = '';
+  rows.forEach(r => {
+    const row       = document.createElement('div');
+    row.className   = 'error-row';
+    const diffClass = r.felmarginal >= 0 ? 'pos' : 'neg';
+    const diffSign  = r.felmarginal >= 0 ? '+' : '';
+    row.innerHTML   = `
+      <span class="err-x">${fmt(r.x)}</span>
+      <span class="err-y">${fmt(r.y)}</span>
+      <span class="err-yhat">${fmt(r.predicted)}</span>
+      <span class="err-diff ${diffClass}">${diffSign}${r.felmarginal.toFixed(2)}</span>
+      <span class="err-sq">${r.squaredError.toFixed(2)}</span>`;
+    container.appendChild(row);
+  });
 }
 
 /* ═══════════════════════════════
