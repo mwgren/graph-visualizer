@@ -1153,7 +1153,12 @@ function autoFitSuggestion(pts) {
   const n     = pts.length;
 
   // mean(Y) = sum of all y-values / n
-  const meanY = pts.reduce((sum, p) => sum + p.y, 0) / n;
+  let sum = 0;
+  for (let i = 0; i < pts.length; i++) {
+  sum = sum + pts[i].y;
+  }
+  
+const meanY = sum / pts.length;
 
   currentA = meanY; // α = mean(Y): line centred vertically on the data
   currentB = 0;     // β = 0: flat line — slope must be learned from scratch
@@ -1208,13 +1213,27 @@ const LEARN_RATE_A = LEARN_RATE;
 
    meanX(pts)  — mean of x-values:    mean(x) = Σ(x_i) / n
    stdX(pts)   — std dev of x-values: std(x) = sqrt(Σ(x_i − mean(x))² / n)
+
+
+ Mean, SD and norm calcs  
 ═══════════════════════════════════════════════════════════════ */
 function meanX(pts) {
-  return pts.reduce((s, p) => s + p.x, 0) / pts.length;
+  let sum = 0;
+  for (let i = 0; i < pts.length; i++) {
+    sum = sum + pts[i].x;
+  }
+  return sum / pts.length;
 }
+
 function stdX(pts) {
   const mx = meanX(pts);
-  const variance = pts.reduce((s, p) => s + (p.x - mx) ** 2, 0) / pts.length;
+
+  let sumOfSquaredDiffs = 0;
+  for (let i = 0; i < pts.length; i++) {
+    sumOfSquaredDiffs = sumOfSquaredDiffs + (pts[i].x - mx) ** 2;
+  }
+
+  const variance = sumOfSquaredDiffs / pts.length;
   return Math.sqrt(variance) || 1; // guard: if all x identical, std=1
 }
 
@@ -1279,10 +1298,14 @@ function stdX(pts) {
    Why this works: in normalised space mean(x_norm)=0, std(x_norm)=1,
    so a learning rate of 0.1 is always appropriate regardless of the
    scale or range of the original x-values.
+
+
+grad descent   
 ═══════════════════════════════════════════════════════════════ */
 function nudgeBoth(steps = 1) {
   if (dataPoints.length < 2) return flashNudge('nudgeBtn');
 
+  //norming
   const mx  = meanX(dataPoints);   // mean(x)
   const sx  = stdX(dataPoints);    // std(x)
 
@@ -1294,6 +1317,10 @@ function nudgeBoth(steps = 1) {
     // where x_norm = (x − mx) / sx
     // so α_norm = currentA + currentB × mx
     //    β_norm = currentB × sx
+
+    //norm a and b. 
+    //This works since y = a + b * x
+    //can be derived to y = a + b * mx + b * sx * xNorm
     const aNorm = currentA + currentB * mx;
     const bNorm = currentB * sx;
 
@@ -1302,21 +1329,24 @@ function nudgeBoth(steps = 1) {
     let sumWeightedErrors = 0;  // Σ(x_norm_i × felmarginal_i)
 
     dataPoints.forEach(point => {
-      const xNorm       = (point.x - mx) / sx;               // normalised x
-      const predicted   = aNorm + bNorm * xNorm;              // ŷ in norm. space
-      const felmarginal = point.y - predicted;                 // y − ŷ
-      sumErrors         += felmarginal;
-      sumWeightedErrors += xNorm * felmarginal;               // weighted by x_norm
+      const xNorm       = (point.x - mx) / sx;  //norming with SD so that it's comparable
+      const predicted   = aNorm + bNorm * xNorm; //the model, y=a+b*x, with normed a,b and x
+      const felmarginal = point.y - predicted;  // y doesn't need to be normed
+      sumErrors         += felmarginal; //accounts for intercept, the intercept is additive, y=a+...
+      sumWeightedErrors += xNorm * felmarginal; // *xNorm so that errors close to the intercept weigh less. You can derive it and check, too. 
+      //This shouldn't account for intercept errors, just slope errors.
     });
 
-    // ── Step 3: gradient updates in normalised space ───────────
+    //averaging so it's the error on average
     const meanError         = sumErrors         / n;  // for α_norm
     const meanWeightedError = sumWeightedErrors / n;  // for β_norm
 
+    //update with a learning rate
     const aNormNew = aNorm + LEARN_RATE * meanError;
     const bNormNew = bNorm + LEARN_RATE * meanWeightedError;
 
     // ── Step 4: convert back to original space ─────────────────
+    //convert back so it displays correctly. You can derive this, too.
     // β = β_norm / std(x)
     // α = α_norm − β × mean(x)
     currentB = bNormNew / sx;
@@ -1353,11 +1383,11 @@ function updateNudgeExamples() {
   const mx = meanX(pts);
   const sx = stdX(pts);
 
-  // Convert to normalised space (identical to nudgeBoth)
+  // norm(identical to nudgeBoth)
   const aNorm = a + b * mx;
   const bNorm = b * sx;
 
-  // Compute felmarginaler in normalised space
+  // Compute felmarginaler with normed values
   let sumErrors = 0, sumWeightedErrors = 0;
   pts.forEach(point => {
     const xNorm       = (point.x - mx) / sx;
