@@ -555,7 +555,7 @@
  }
  .error-cols {
  display: grid;
- grid-template-columns: 1fr 1fr 1fr;
+ grid-template-columns: 1fr 1fr;
  gap: .5rem;
  margin-bottom: .85rem;
  }
@@ -595,7 +595,7 @@
  }
  .error-rows-header {
  display: grid;
- grid-template-columns: .8fr 1fr 1fr 1fr .8fr;
+ grid-template-columns: .8fr 1fr 1fr 1fr;
  gap: .5rem;
  padding: .55rem .6rem;
  background: var(--surface2);
@@ -609,7 +609,7 @@
  }
  .error-row {
  display: grid;
- grid-template-columns: .8fr 1fr 1fr 1fr .8fr;
+ grid-template-columns: .8fr 1fr 1fr 1fr;
  gap: .5rem;
  padding: .55rem .6rem;
  border: 1.5px solid var(--border);
@@ -627,7 +627,6 @@
  .error-row .err-diff{ font-weight: 600; }
  .err-diff.pos { color: #c45f18; }
  .err-diff.neg { color: #6346b0; }
- .error-row .err-sq { color: var(--muted); }
     summary.nudge-info-title {
       list-style: none;
       cursor: pointer;
@@ -666,17 +665,6 @@
       transition: all .15s;
     }
     .sq-info-btn:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
-    .sq-info-box {
-      background: #fef9ec;
-      border: 1.5px solid #f0dfa0;
-      border-radius: 10px;
-      padding: .85rem 1rem;
-      margin: .6rem 0 .75rem;
-      font-size: .82rem;
-      color: var(--text);
-      line-height: 1.6;
-      box-shadow: var(--shadow-sm);
-    }
 
  /* ── NUDGE INFO CARDS ── */
  .nudge-info-row {
@@ -969,9 +957,9 @@
             <div class="nudge-info-body">
               Tänk dig att du försöker rita en linje som visar sambandet mellan temperatur och glassförsäljning. Linjen börjar fel — det är meningen! Varje knapptryckning förbättrar den lite. Exemplet nedan uppdateras i realtid.<br><br>
               <b>1. Beräkna ny skärningspunkt</b><br>
-              I formeln y = α + β·x är α ett plus — det adderas rakt av utan att multipliceras med något. Därför justerar vi α med genomsnittet av (verkligt − förutsagt). Tecknet på genomsnittet avgör åt vilket håll: positivt → α ökar, negativt → α minskar.<br><br>
+              I formeln y = kx + m är m ett plus — det adderas rakt av utan att multipliceras med något. Därför justerar vi m med genomsnittet av (verkligt – förutsagt). Tecknet på genomsnittet avgör åt vilket håll: positivt → m ökar, negativt → m minskar.<br><br>
               <b>2. Beräkna ny lutning</b><br>
-              I formeln y = α + β·x multipliceras β med x. Därför justerar vi β med genomsnittet av (verkligt − förutsagt) × x — x måste vara med eftersom det är x som avgör hur stor effekt β har på varje punkt.<br><br>
+              I formeln y = kx + m multipliceras k med x. Därför justerar vi k med genomsnittet av (verkligt värde − förutsagt värde) × x.<br><br>
               <b>3. Uppdatera båda på en gång</b><br>
               Skärningspunkten och lutningen räknas ut från samma felmarginaler och uppdateras samtidigt — annars skulle den ena förändringen störa den andra.<br><br>
               <span class="nudge-example" id="exampleAlpha">Ladda exempeldata för att se uträkningen.</span>
@@ -1005,17 +993,10 @@
  <span class="error-stat-label">Medelfel (MAE)</span>
  <span class="error-stat-value" id="errMAE">—</span>
  </div>
- <div class="error-stat">
- <span class="error-stat-label">Genomsnitt av Fel² <button class="sq-info-btn" onclick="toggleSqInfo(event)">?</button></span>
- <span class="error-stat-value" id="errMSE">—</span>
- </div>
  <div class="error-stat highlight">
  <span class="error-stat-label">Passning</span>
  <span class="error-stat-value" id="errFit">—</span>
  </div>
- </div>
- <div class="sq-info-box" id="sqInfoBox" style="display:none">
-   Vi kvadrerar felet för att positiva och negativa fel inte ska ta ut varandra. Ett minus-fel skulle annars ta bort ett plus-fel, och vi skulle tro att linjen passar bättre än den gör. Det vi är intresserade av är avståndet från noll — hur fel linjen är — oavsett riktning. Ett fel på −5 är lika allvarligt som ett fel på +5.
  </div>
  <div class="error-rows-wrap">
  <div class="error-rows-header">
@@ -1023,7 +1004,6 @@
  <span id="errColY"><span class="dyn-yname">Y</span> (verkligt)</span>
  <span id="errColYhat"><span class="dyn-yname">Y</span> (förutsagt)</span>
  <span>Fel (verkligt − förutsagt)</span>
- <span>Fel²</span>
  </div>
  <div id="errorRows"></div>
  </div>
@@ -1113,9 +1093,6 @@ function plotData() {
  if (dataPoints.length >= 2) autoFitSuggestion(dataPoints);
  // Open viz section and show nudge buttons
  document.getElementById('vizSection').classList.add('open');
- // Show the error+nudge subsection once we have data
- const subError = document.getElementById('subError');
- // subError is always visible
  draw();
 }
 
@@ -1129,55 +1106,32 @@ function scheduleReplot() {
 
 /* ═══════════════════════════════════════════════════════════════
    autoFitSuggestion(pts)
-   ─────────────────────────────────────────────────────────────
-   Sets the starting parameters when data is first plotted.
-
-   Starting point:
-     α = mean(Y)   — horizontal line through the vertical centre
-     β = 0         — completely flat (slope ignored)
-
-   Why this starting point?
-   - It is the simplest meaningful model: predict the same value
-     for every X (the average Y). This is called the "null model".
-   - β = 0 means the slope update has to build from scratch,
-     making the learning process clearly visible step by step.
-   - The intercept starts at mean(Y) so the line is at least
-     centred on the data, even if the slope is wrong.
-
-   Formula:
-     mean(Y) = Σ(y_i) / n
 ═══════════════════════════════════════════════════════════════ */
 function autoFitSuggestion(pts) {
   if (pts.length < 2) return;
 
   const n     = pts.length;
 
-  // mean(Y) = sum of all y-values / n
   let sum = 0;
   for (let i = 0; i < pts.length; i++) {
   sum = sum + pts[i].y;
   }
-  
+
 const meanY = sum / pts.length;
 
-  currentA = meanY; // α = mean(Y): line centred vertically on the data
-  currentB = 0;     // β = 0: flat line — slope must be learned from scratch
+  currentA = meanY;
+  currentB = 0;
 
   syncSlidersFromState();
 }
 
 /* ═══════════════════════════════
  INTERNAL PARAMETER STATE
- α and β are stored as plain JS
- floats — sliders are just display.
- This avoids step/min/max rounding
- killing the nudge after few presses.
 ═══════════════════════════════ */
-let currentA = 1; // skärningspunkt
-let currentB = 2; // slope
+let currentA = 1;
+let currentB = 2;
 
 function syncSlidersFromState() {
- // Expand slider range if needed, then sync thumb position
  function syncOne(slider, value) {
  if (value < parseFloat(slider.min)) slider.min = value - 5;
  if (value > parseFloat(slider.max)) slider.max = value + 5;
@@ -1186,7 +1140,6 @@ function syncSlidersFromState() {
  syncOne(iSlider, currentA);
  syncOne(sSlider, currentB);
 }
-
 /* ═══════════════════════════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════════════════════════ */
@@ -1300,7 +1253,9 @@ function stdX(pts) {
    scale or range of the original x-values.
 
 
-grad descent   
+grad descent
+good resource:
+https://mccormickml.com/2014/03/04/gradient-descent-derivation/
 ═══════════════════════════════════════════════════════════════ */
 function nudgeBoth(steps = 1) {
   if (dataPoints.length < 2) return flashNudge('nudgeBtn');
@@ -1361,10 +1316,6 @@ function nudgeBoth(steps = 1) {
 
 /* ═══════════════════════════════════════════════════════════════
    updateNudgeExamples()
-   ─────────────────────────────────────────────────────────────
-   Shows the actual numbers for ONE step from the current state
-   so the user can follow the calculation manually.
-   Uses identical math to nudgeBoth(1).
 ═══════════════════════════════════════════════════════════════ */
 function updateNudgeExamples() {
   const exA = document.getElementById('exampleAlpha');
@@ -1383,11 +1334,9 @@ function updateNudgeExamples() {
   const mx = meanX(pts);
   const sx = stdX(pts);
 
-  // norm(identical to nudgeBoth)
   const aNorm = a + b * mx;
   const bNorm = b * sx;
 
-  // Compute felmarginaler with normed values
   let sumErrors = 0, sumWeightedErrors = 0;
   pts.forEach(point => {
     const xNorm       = (point.x - mx) / sx;
@@ -1400,14 +1349,13 @@ function updateNudgeExamples() {
   const meanError         = sumErrors         / n;
   const meanWeightedError = sumWeightedErrors / n;
 
-  // Next values after one step (convert back to original space)
   const aNormNew = aNorm + LEARN_RATE * meanError;
   const bNormNew = bNorm + LEARN_RATE * meanWeightedError;
   const bNext    = bNormNew / sx;
   const aNext    = aNormNew - bNext * mx;
 
-  // Display — note: sums shown are in normalised space
   exA.innerHTML =
+  `<i style="font-size:.75rem;color:var(--muted)">x används normaliserat: (x − medelvärde av alla x) / standardavvikelse av alla x för att göra beräkningen stabil</i><br><br>` +
     `<b>Skärningspunkt</b> — genomsnitt av (verkligt − förutsagt):<br>` +
     `&nbsp;&nbsp;Summa av felmarginaler = ${fmt(sumErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumErrors)} / ${n} = <b>${fmt(meanError)}</b><br><br>` +
@@ -1430,14 +1378,6 @@ function flashNudge(id) {
 
 /* ═══════════════════════════════════════════════════════════════
    PREDICTION
-   ─────────────────────────────────────────────────────────────
-   Given a new x-value entered by the user, compute the predicted
-   y-value using the current line:
-
-     ŷ = α + β × x_input
-       = currentA + currentB × predictionX
-
-   This is just plugging the x-value into the line equation.
 ═══════════════════════════════════════════════════════════════ */
 let predictionX = null;
 
@@ -1446,7 +1386,6 @@ function updatePrediction() {
   const val = parseFloat(inp.value);
   predictionX = isNaN(val) ? null : val;
 
-  // Read α and β from internal state (not slider, which is quantized)
   const a = currentA;
   const b = currentB;
  const resultEl = document.getElementById('predictResult');
@@ -1456,7 +1395,6 @@ function updatePrediction() {
  resultEl.textContent = '—';
  explEl.textContent = '';
  } else {
-  // ŷ = α + β × x_input
   const yHat = a + b * predictionX;
  resultEl.textContent = fmt(yHat);
  resultEl.classList.add('has-value');
@@ -1477,14 +1415,12 @@ document.getElementById('pasteArea').addEventListener('paste', function(e) {
  parsePaste(text);
  this.value = '';
 });
-/* Shift+Enter adds a newline; Enter alone parses and clears */
 document.getElementById('pasteArea').addEventListener('keydown', function(e) {
  if (e.key === 'Enter' && !e.shiftKey) {
  e.preventDefault();
  if (this.value.trim()) { parsePaste(this.value); this.value = ''; }
  }
 });
-/* Only auto-parse if the text looks like pasted tabular data (has tab or newline) */
 document.getElementById('pasteArea').addEventListener('input', function() {
  if (/\t/.test(this.value)) { parsePaste(this.value); this.value = ''; }
 });
@@ -1517,7 +1453,6 @@ function syncAllNames() {
  document.getElementById('colLblY').textContent = yName;
  document.querySelectorAll('.dyn-xname').forEach(el => el.textContent = xName);
  document.querySelectorAll('.dyn-yname').forEach(el => el.textContent = yName);
- // Update error panel column headers
  const cx = document.getElementById('errColX');
  const cy = document.getElementById('errColY');
  if (cx) cx.innerHTML = `<span class="dyn-xname">${xName}</span>`;
@@ -1537,24 +1472,10 @@ addRow(); addRow(); addRow(); addRow();
 
 /* ═══════════════════════════════════════════════════════════════
    FIT QUALITY — calcFit()
-
-   We measure how well the line fits using MAE (mean absolute error)
-   expressed as a percentage of the Y-range, then invert it so that
-   100% = perfect fit, 0% = worst possible.
-
-   MAE = mean( |predicted_i − actual_i| )
-       = sum( |ŷ_i − y_i| ) / n
-
-   fit% = max(0,  100  −  (MAE / y_range) × 100 )
-
-   Why divide by y_range? So the score is comparable across datasets
-   with different scales — an error of 5 means something different
-   if Y ranges from 0–10 vs 0–1000.
 ═══════════════════════════════════════════════════════════════ */
 function calcFit(pts, a, b) {
   if (pts.length === 0) return null;
 
-  // Sum of absolute errors: |predicted − actual| for every point
   let sumAbsoluteError = 0;
   pts.forEach(point => {
     const predicted      = a + b * point.x;
@@ -1563,15 +1484,12 @@ function calcFit(pts, a, b) {
   });
   const mae = sumAbsoluteError / pts.length;
 
-  // Range of actual Y values (used to normalise the score)
   const yMax   = Math.max(...pts.map(p => p.y));
   const yMin   = Math.min(...pts.map(p => p.y));
   const yRange = yMax - yMin;
 
-  // Guard: if all Y values are equal, any line through them is perfect
   if (yRange === 0) return 100;
 
-  // Convert MAE to a 0–100 fit score (higher = better)
   return Math.max(0, 100 - (mae / yRange) * 100);
 }
 
@@ -1601,17 +1519,6 @@ function updateFitBar(pts, a, b) {
 
 /* ═══════════════════════════════════════════════════════════════
    ERROR PANEL — updateErrorPanel()
-
-   Shows a breakdown of errors for every single data point.
-
-   For each point we compute:
-     predicted  (ŷ)  = α + β × x
-     felmarginal      = y − ŷ          (positive = line too low)
-     squared error    = felmarginal²   (penalises big errors more)
-
-   Summary statistics shown:
-     MAE = mean( |felmarginal_i| )       — average absolute error
-     MSE = mean( felmarginal_i² )        — mean squared error
 ═══════════════════════════════════════════════════════════════ */
 function updateErrorPanel(pts, a, b) {
   if (pts.length < 2) return;
@@ -1619,7 +1526,6 @@ function updateErrorPanel(pts, a, b) {
   const xName = document.getElementById('xName').value || 'X';
   const yName = document.getElementById('yName').value || 'Y';
 
-  // Update column headers to reflect current variable names
   const cxEl = document.getElementById('errColX');
   const cyEl = document.getElementById('errColY');
   if (cxEl) cxEl.innerHTML = `<span class="dyn-xname">${xName}</span>`;
@@ -1627,35 +1533,26 @@ function updateErrorPanel(pts, a, b) {
   const chEl = document.getElementById('errColYhat');
   if (chEl) chEl.innerHTML = `<span class="dyn-yname">${yName}</span> (förutsagt)`;
 
-  // Compute per-point errors
   const rows = pts.map(point => {
-    const predicted     = a + b * point.x;          // ŷ = α + β × x
-    const felmarginal   = point.y - predicted;       // y − ŷ
-    const squaredError  = felmarginal * felmarginal; // (y − ŷ)²
+    const predicted     = a + b * point.x;
+    const felmarginal   = point.y - predicted;
     return {
       x:            point.x,
       y:            point.y,
       predicted,
-      felmarginal,
-      squaredError
+      felmarginal
     };
   });
 
-  // MAE: mean of absolute felmarginaler
   const mae = rows.reduce((sum, r) => sum + Math.abs(r.felmarginal), 0) / rows.length;
-
-  // MSE: mean of squared felmarginaler
-  const mse = rows.reduce((sum, r) => sum + r.squaredError, 0) / rows.length;
 
   const score = calcFit(pts, a, b);
 
   document.getElementById('errMAE').textContent = mae.toFixed(2);
-  document.getElementById('errMSE').textContent = mse.toFixed(2);
   const fitEl = document.getElementById('errFit');
   fitEl.textContent  = score.toFixed(0) + '%';
   fitEl.style.color  = score >= 85 ? '#0a7c6e' : score >= 65 ? '#a07500' : score >= 40 ? '#c45f18' : '#b5366a';
 
-  // Render one row per data point
   const container = document.getElementById('errorRows');
   container.innerHTML = '';
   rows.forEach(r => {
@@ -1667,8 +1564,7 @@ function updateErrorPanel(pts, a, b) {
       <span class="err-x">${fmt(r.x)}</span>
       <span class="err-y">${fmt(r.y)}</span>
       <span class="err-yhat">${fmt(r.predicted)}</span>
-      <span class="err-diff ${diffClass}">${diffSign}${r.felmarginal.toFixed(2)}</span>
-      <span class="err-sq">${r.squaredError.toFixed(2)}</span>`;
+      <span class="err-diff ${diffClass}">${diffSign}${r.felmarginal.toFixed(2)}</span>`;
     container.appendChild(row);
   });
 }
@@ -1699,7 +1595,6 @@ function getAxisRange() {
 }
 
 function draw() {
- // Read from internal state (not slider, which is quantized by step attr)
  const a = currentA;
  const b = currentB;
  const {xMin,xMax,yMin,yMax} = getAxisRange();
@@ -1759,10 +1654,8 @@ function draw() {
  // axis labels
  const xName = document.getElementById('xName').value || 'X';
  const yName = document.getElementById('yName').value || 'Y';
- // X label: bottom-right corner, below tick numbers
  svg.appendChild(el('text',{x:SVG_W-PAD.right,y:SVG_H-PAD.bottom+14,'text-anchor':'end',
  fill:'#7a7570','font-size':'13','font-family':'DM Serif Display,serif','font-style':'italic'},xName));
- // Y label: top of y-axis (original position)
  svg.appendChild(el('text',{x:xS(0)+8,y:PAD.top-6,'text-anchor':'start',
  fill:'#7a7570','font-size':'13','font-family':'DM Serif Display,serif','font-style':'italic'},yName));
 
@@ -1789,23 +1682,19 @@ function draw() {
  const px = predictionX;
  const py = a + b * px;
  if (px >= xMin && px <= xMax && py >= yMin && py <= yMax) {
- // vertical dashed drop-line from x-axis to point
  svg.appendChild(el('line', {
  x1: xS(px), y1: yS(0), x2: xS(px), y2: yS(py),
  stroke: '#6346b0', 'stroke-width': '1.5', 'stroke-dasharray': '4,3',
  'clip-path': 'url(#gc)'
  }));
- // horizontal dashed line from y-axis to point
  svg.appendChild(el('line', {
  x1: xS(xMin), y1: yS(py), x2: xS(px), y2: yS(py),
  stroke: '#6346b0', 'stroke-width': '1.5', 'stroke-dasharray': '4,3',
  'clip-path': 'url(#gc)'
  }));
- // glow halo
  svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '13', fill: 'rgba(99,70,176,.12)' }));
  svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '7', fill: 'rgba(99,70,176,.25)' }));
  svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '5', fill: '#6346b0', stroke: '#fff', 'stroke-width': '2' }));
- // label
  const lx = xS(px) > SVG_W * 0.65 ? xS(px) - 12 : xS(px) + 12;
  const anchor = xS(px) > SVG_W * 0.65 ? 'end' : 'start';
  const yName2 = document.getElementById('yName').value || 'Y';
@@ -1825,9 +1714,7 @@ function draw() {
  void eqBox.offsetWidth;
  eqBox.classList.add('pop');
  }
- // Keep predict formula chip in sync
  const pf = document.getElementById('predictFormula'); if (pf) pf.textContent = eq;
- // Refresh prediction explanation (values may have changed with slider)
  if (predictionX !== null) {
  const yHat = a + b * predictionX;
  document.getElementById('predictResult').textContent = fmt(yHat);
@@ -1850,7 +1737,6 @@ function formatEq(a, b) {
  const xN = document.getElementById('xName').value || 'X';
  const yN = document.getElementById('yName').value || 'Y';
  const aS=fmt(a), bA=Math.abs(b), bS=fmt(bA);
- // Always show slope explicitly, even when 0
  if (b===0) return `${yN} = ${aS} + 0 × ${xN}`;
  const sign = b>0 ? '+' : '−';
  if (bA===1) return `${yN} = ${aS} ${sign} ${xN}`;
