@@ -41,25 +41,10 @@
 
  .container { max-width: 720px; margin: 0 auto; }
 
- /* ── HEADER ── */
  header {
  text-align: center;
  margin-bottom: 2rem;
  padding: 2rem 1.5rem 1.75rem;
- }
- .header-tag {
- display: inline-block;
- font-family: 'DM Mono', monospace;
- font-size: .72rem;
- font-weight: 500;
- letter-spacing: .12em;
- text-transform: uppercase;
- background: var(--teal-light);
- color: var(--teal);
- border: 1px solid var(--teal-mid);
- border-radius: 20px;
- padding: .25rem .85rem;
- margin-bottom: .9rem;
  }
  h1 {
  font-family: 'DM Serif Display', serif;
@@ -72,7 +57,6 @@
  h1 em { color: var(--teal); font-style: normal; }
  .header-sub { font-size: .92rem; color: var(--muted); max-width: 420px; margin: 0 auto; }
 
- /* ── FORMULA CARD ── */
  .formula-card {
  background: var(--surface);
  border: 1.5px solid var(--border);
@@ -113,7 +97,6 @@
  .beta .param-text strong { color: var(--purple); }
  .param-text p { font-size: .83rem; color: var(--muted); line-height: 1.45; }
 
- /* ── SECTION WRAPPER ── */
  .section {
  background: var(--surface);
  border: 1.5px solid var(--border);
@@ -123,7 +106,6 @@
  overflow: hidden;
  }
 
- /* ── SECTION HEADER (toggle) ── */
  .section-header {
  display: flex;
  align-items: center;
@@ -162,11 +144,9 @@
  }
  .section.open .toggle-arrow { transform: rotate(90deg); }
 
- /* ── SECTION BODY ── */
  .section-body { display: none; padding: 1.25rem; }
  .section.open .section-body { display: block; }
 
- /* ── DATA TABLE ── */
  .col-names {
  display: grid;
  grid-template-columns: 1fr 1fr;
@@ -196,10 +176,7 @@
  width: 100%;
  transition: border-color .15s;
  }
- .col-name-wrap.x-col .col-name-input:focus { border-color: var(--border2); }
- .col-name-wrap.y-col .col-name-input:focus { border-color: var(--border2); }
 
- /* ── ROWS ── */
  .rows-list { display: flex; flex-direction: column; gap: .45rem; margin-bottom: 1rem; }
  .data-row {
  display: grid;
@@ -272,7 +249,6 @@
  .btn-clear { background: var(--pink-light); color: var(--pink); border: 1.5px solid #e0b0c8; }
  .btn-plot { background: var(--teal); color: #fff; }
 
- /* paste */
  .paste-hint { font-size: .8rem; color: var(--muted); margin-bottom: .5rem; }
  .paste-area {
  width: 100%;
@@ -291,59 +267,94 @@
  }
  .paste-area:focus { border-color: var(--border2); border-style: solid; }
 
+ /* ── MANUAL PARAM INPUTS ── */
+ .param-inputs-row {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: .75rem;
+   margin-bottom: .85rem;
+ }
+ @media(max-width:480px){ .param-inputs-row { grid-template-columns: 1fr; } }
+
+ .param-input-card {
+   border-radius: 10px;
+   padding: .85rem 1rem;
+   display: flex;
+   flex-direction: column;
+   gap: .45rem;
+ }
+ .param-input-card.card-intercept {
+   background: var(--teal-light);
+   border: 1.5px solid var(--teal-mid);
+ }
+ .param-input-card.card-slope {
+   background: var(--purple-light);
+   border: 1.5px solid var(--purple-mid);
+ }
+
+ .param-input-label {
+   font-family: 'DM Mono', monospace;
+   font-size: .72rem;
+   font-weight: 500;
+   letter-spacing: .1em;
+   text-transform: uppercase;
+ }
+ .card-intercept .param-input-label { color: var(--teal); }
+ .card-slope     .param-input-label { color: var(--purple); }
+
+ .param-input-desc {
+   font-size: .78rem;
+   color: var(--muted);
+   line-height: 1.4;
+ }
+
+ .param-number-wrap {
+   display: flex;
+   align-items: center;
+   gap: .4rem;
+ }
+ .param-letter-sm {
+   font-family: 'DM Serif Display', serif;
+   font-size: 1.3rem;
+   line-height: 1;
+   flex-shrink: 0;
+ }
+ .card-intercept .param-letter-sm { color: var(--teal); }
+ .card-slope     .param-letter-sm { color: var(--purple); }
+
+ .param-number-input {
+   flex: 1;
+   background: #fff;
+   border-radius: 8px;
+   padding: .45rem .7rem;
+   font-family: 'DM Serif Display', serif;
+   font-size: 1.25rem;
+   outline: none;
+   width: 100%;
+   -moz-appearance: textfield;
+   transition: border-color .15s, box-shadow .15s;
+ }
+ .param-number-input::-webkit-outer-spin-button,
+ .param-number-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+ .card-intercept .param-number-input {
+   border: 1.5px solid var(--teal-mid);
+   color: var(--teal);
+ }
+ .card-intercept .param-number-input:focus {
+   border-color: var(--teal);
+   box-shadow: 0 0 0 3px rgba(10,124,110,.12);
+ }
+ .card-slope .param-number-input {
+   border: 1.5px solid var(--purple-mid);
+   color: var(--purple);
+ }
+ .card-slope .param-number-input:focus {
+   border-color: var(--purple);
+   box-shadow: 0 0 0 3px rgba(99,70,176,.12);
+ }
+
  /* ── VISUALIZER ── */
- .sliders-row {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: .75rem;
- margin-bottom: 1rem;
- }
- @media(max-width:480px){ .sliders-row { grid-template-columns: 1fr; } }
- .slider-card {
- background: var(--surface2);
- border: 1.5px solid var(--border);
- border-radius: 10px;
- padding: .85rem 1rem;
- }
- .slider-top {
- display: flex;
- justify-content: space-between;
- align-items: baseline;
- margin-bottom: .15rem;
- }
- .slider-name { font-size: .85rem; font-weight: 700; }
- .s-intercept .slider-name { color: var(--teal); }
- .s-slope .slider-name { color: var(--purple); }
- .slider-num {
- font-family: 'DM Serif Display', serif;
- font-size: 1.4rem;
- }
- .s-intercept .slider-num { color: var(--teal); }
- .s-slope .slider-num { color: var(--purple); }
- .slider-hint { font-size: .75rem; color: var(--muted); margin-bottom: .55rem; }
-
- input[type="range"] {
- -webkit-appearance: none;
- width: 100%;
- height: 5px;
- border-radius: 3px;
- outline: none;
- cursor: pointer;
- }
- input[type="range"]::-webkit-slider-thumb {
- -webkit-appearance: none;
- width: 20px;
- height: 20px;
- border-radius: 50%;
- border: 2.5px solid #fff;
- box-shadow: 0 2px 8px rgba(0,0,0,.2);
- cursor: pointer;
- transition: transform .1s;
- }
- input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
- #interceptSlider::-webkit-slider-thumb { background: var(--teal); }
- #slopeSlider::-webkit-slider-thumb { background: var(--purple); }
-
  .checkboxes { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
  .check-label {
  display: flex;
@@ -385,7 +396,6 @@
  }
  svg { display: block; width: 100%; height: auto; }
 
- /* fit bar */
  .fit-bar {
  display: flex;
  align-items: center;
@@ -405,7 +415,6 @@
 
  .steps-divider { border: none; border-top: 1.5px solid var(--border); margin: 1.1rem 0; }
 
- /* steps inside visualizer */
  .step { margin-bottom: .75rem; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); }
  .step-header {
  display: flex;
@@ -459,7 +468,6 @@
  }
  .calc-box .result { color: var(--teal); font-weight: 700; }
 
- /* ── PREDICTION PANEL ── */
  .predict-panel {
  background: linear-gradient(135deg, #fffbf0 0%, #f5f0ff 100%);
  border: 1.5px solid #d8d0f0;
@@ -545,7 +553,6 @@
  .predict-explanation .step-val { color: var(--teal); font-weight: 500; }
  .predict-explanation .pred-val { color: var(--purple); font-weight: 600; }
 
- /* ── ERROR DISPLAY ── */
  .error-display {
  background: #fff;
  border: 1.5px solid var(--border);
@@ -559,7 +566,6 @@
  gap: .5rem;
  margin-bottom: .85rem;
  }
- @media(max-width:480px){ .error-cols { grid-template-columns: 1fr 1fr; } }
  .error-stat {
  background: var(--surface2);
  border: 1.5px solid var(--border);
@@ -651,22 +657,7 @@
       vertical-align: middle;
       margin-left: .2rem;
     }
-    .sq-info-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface);
-      border: 1.5px solid var(--border2);
-      border-radius: 50%;
-      width: 15px; height: 15px;
-      font-size: .65rem; font-weight: 700;
-      color: var(--muted); cursor: pointer;
-      padding: 0; vertical-align: middle;
-      transition: all .15s;
-    }
-    .sq-info-btn:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
 
- /* ── NUDGE INFO CARDS ── */
  .nudge-info-row {
       display: flex;
       flex-direction: row;
@@ -706,19 +697,6 @@
  line-height: 1.7;
  }
 
- .nudge-formula {
- display: inline-block;
- font-family: 'DM Mono', monospace;
- font-size: .74rem;
- background: var(--surface);
- border: 1px solid var(--border);
- border-radius: 4px;
- padding: .1rem .45rem;
- margin: .2rem 0;
- color: var(--text);
- }
-
- /* ── ML COMBINED BOX ── */
  .ml-box {
  background: var(--surface);
  border: 1.5px solid var(--border);
@@ -746,7 +724,6 @@
  margin-bottom: .85rem;
  }
 
- /* ── NUDGE BUTTONS ── */
  .nudge-row {
  background: #faf7f0;
  border: 1.5px solid #e8dfc8;
@@ -764,14 +741,6 @@
  margin-bottom: .65rem;
  }
  .nudge-icon { font-size: 1rem; }
- .nudge-pct {
- font-family: 'DM Mono', monospace;
- font-size: .75rem;
- background: #f0e8d0;
- border-radius: 4px;
- padding: .05rem .35rem;
- color: #8a6a20;
- }
  .nudge-buttons {
  display: grid;
  grid-template-columns: 1fr 1fr;
@@ -820,7 +789,6 @@
  @keyframes pop { 0%{transform:scale(1);} 40%{transform:scale(1.06);} 100%{transform:scale(1);} }
  .eq-box.pop { animation: pop .22s ease-out; }
 
- /* ── SUBSECTIONS ── */
  .subsection {
  border: 1.5px solid var(--border);
  border-radius: 10px;
@@ -931,6 +899,40 @@
  <div class="predict-explanation" id="predictExplanation"></div>
  </div>
 
+ <!-- ── MANUAL PARAMETER INPUT BOXES ── -->
+ <div class="param-inputs-row">
+   <div class="param-input-card card-intercept">
+     <span class="param-input-label">Skärningspunkt (m)</span>
+     <span class="param-input-desc">Var linjen skär y-axeln när x = 0</span>
+     <div class="param-number-wrap">
+       <span class="param-letter-sm">m =</span>
+       <input
+         type="number"
+         step="0.01"
+         id="manualIntercept"
+         class="param-number-input"
+         value="1"
+         oninput="onManualIntercept(this.value)"
+       >
+     </div>
+   </div>
+   <div class="param-input-card card-slope">
+     <span class="param-input-label">Lutning (k)</span>
+     <span class="param-input-desc">Hur mycket y ökar per enhet x</span>
+     <div class="param-number-wrap">
+       <span class="param-letter-sm">k =</span>
+       <input
+         type="number"
+         step="0.01"
+         id="manualSlope"
+         class="param-number-input"
+         value="2"
+         oninput="onManualSlope(this.value)"
+       >
+     </div>
+   </div>
+ </div>
+
  <!-- Equation display -->
  <div class="eq-display">
  <span class="eq-box" id="equationDisplay">Y = 1 + 2X</span>
@@ -1022,12 +1024,6 @@
 /* ═══════════════════════════════
  SECTION TOGGLE
 ═══════════════════════════════ */
-function toggleSqInfo(e) {
-  e.stopPropagation();
-  const box = document.getElementById('sqInfoBox');
-  box.style.display = box.style.display === 'none' ? 'block' : 'none';
-}
-
 function toggleSection(id) {
  document.getElementById(id).classList.toggle('open');
 }
@@ -1038,6 +1034,34 @@ function toggleSubsection(id) {
 
 function toggleStep(header) {
  header.parentElement.classList.toggle('open');
+}
+
+/* ═══════════════════════════════
+ MANUAL PARAM INPUTS
+═══════════════════════════════ */
+function onManualIntercept(val) {
+  const n = parseFloat(val);
+  if (!isNaN(n)) {
+    currentA = n;
+    syncSlidersFromState();
+    draw();
+  }
+}
+
+function onManualSlope(val) {
+  const n = parseFloat(val);
+  if (!isNaN(n)) {
+    currentB = n;
+    syncSlidersFromState();
+    draw();
+  }
+}
+
+function syncManualInputs() {
+  const mi = document.getElementById('manualIntercept');
+  const ms = document.getElementById('manualSlope');
+  if (mi && document.activeElement !== mi) mi.value = parseFloat(currentA.toFixed(4));
+  if (ms && document.activeElement !== ms) ms.value = parseFloat(currentB.toFixed(4));
 }
 
 /* ═══════════════════════════════
@@ -1106,7 +1130,6 @@ function readTable() {
 function plotData() {
  dataPoints = readTable();
  if (dataPoints.length >= 2) autoFitSuggestion(dataPoints);
- // Open viz section and show nudge buttons
  document.getElementById('vizSection').classList.add('open');
  draw();
 }
@@ -1119,25 +1142,15 @@ function scheduleReplot() {
  }, 300);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   autoFitSuggestion(pts)
-═══════════════════════════════════════════════════════════════ */
 function autoFitSuggestion(pts) {
   if (pts.length < 2) return;
-
-  const n     = pts.length;
-
   let sum = 0;
-  for (let i = 0; i < pts.length; i++) {
-  sum = sum + pts[i].y;
-  }
-
-const meanY = sum / pts.length;
-
+  for (let i = 0; i < pts.length; i++) sum += pts[i].y;
+  const meanY = sum / pts.length;
   currentA = meanY;
   currentB = 0;
-
   syncSlidersFromState();
+  syncManualInputs();
 }
 
 /* ═══════════════════════════════
@@ -1155,186 +1168,63 @@ function syncSlidersFromState() {
  syncOne(iSlider, currentA);
  syncOne(sSlider, currentB);
 }
-/* ═══════════════════════════════════════════════════════════════
-   CONSTANTS
-═══════════════════════════════════════════════════════════════ */
+
 const LEARN_RATE   = 0.1;
 const LEARN_RATE_A = LEARN_RATE;
 
-
-/* ═══════════════════════════════════════════════════════════════
-   Feature normalisation helpers
-   ─────────────────────────────────────────────────────────────
-   Gradient descent is unstable when x-values are large or spread
-   far from zero, because the slope gradient scales with x². The
-   standard solution is to normalise x before computing gradients:
-
-     x_norm = (x − mean(x)) / std(x)
-
-   This centres x around 0 and scales it to unit variance, so the
-   gradient descent steps for α and β are naturally balanced and
-   a single learning rate of 0.1 works for any dataset.
-
-   After computing the update in normalised space we convert back:
-     β_original = β_norm / std(x)
-     α_original = α_norm − β_original × mean(x)
-
-   meanX(pts)  — mean of x-values:    mean(x) = Σ(x_i) / n
-   stdX(pts)   — std dev of x-values: std(x) = sqrt(Σ(x_i − mean(x))² / n)
-
-
- Mean, SD and norm calcs  
-═══════════════════════════════════════════════════════════════ */
 function meanX(pts) {
   let sum = 0;
-  for (let i = 0; i < pts.length; i++) {
-    sum = sum + pts[i].x;
-  }
+  for (let i = 0; i < pts.length; i++) sum += pts[i].x;
   return sum / pts.length;
 }
 
 function stdX(pts) {
   const mx = meanX(pts);
-
-  let sumOfSquaredDiffs = 0;
-  for (let i = 0; i < pts.length; i++) {
-    sumOfSquaredDiffs = sumOfSquaredDiffs + (pts[i].x - mx) ** 2;
-  }
-
-  const variance = sumOfSquaredDiffs / pts.length;
-  return Math.sqrt(variance) || 1; // guard: if all x identical, std=1
+  let sumSq = 0;
+  for (let i = 0; i < pts.length; i++) sumSq += (pts[i].x - mx) ** 2;
+  return Math.sqrt(sumSq / pts.length) || 1;
 }
 
-
-/* ═══════════════════════════════════════════════════════════════
-   nudgeBoth(steps)
-   ─────────────────────────────────────────────────────────────
-   Runs `steps` iterations of gradient descent, updating α and β
-   simultaneously in each iteration.
-
-   Each iteration:
-
-   1. Compute felmarginal for every point:
-        felmarginal_i = y_i − ŷ_i
-        where ŷ_i = currentA + currentB × x_i
-
-   2. Intercept gradient:
-        meanError = sum(felmarginal_i) / n
-        → positive: line too low on average → α should increase
-        → negative: line too high on average → α should decrease
-
-   3. Slope gradient (weighted by x):
-        meanWeightedError = sum(x_i × felmarginal_i) / n
-        → x-weighting gives more influence to points far along x-axis,
-          since those points are most affected by the slope
-
-   4. Update both parameters simultaneously (using residuals from
-      BEFORE either update — this is critical for stability):
-        α_new = α + LEARN_RATE     × meanError
-        β_new = β + slopeLR        × meanWeightedError
-
-   Why simultaneous? If we updated α first, the new α would shift
-   all predictions, changing the residuals, making the β update
-   inconsistent with the α update.
-═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   nudgeBoth(steps)
-   ─────────────────────────────────────────────────────────────
-   Runs `steps` gradient descent iterations using feature-normalised
-   x-values for stability.
-
-   Each iteration:
-
-   1. Normalise x:  x_norm_i = (x_i − mean(x)) / std(x)
-      This centres and scales x so gradient steps are balanced.
-
-   2. Convert current (α, β) to normalised space:
-      β_norm = β × std(x)
-      α_norm = α + β × mean(x)   [since ŷ = α_norm + β_norm·x_norm]
-
-   3. Compute felmarginaler in normalised space:
-      felmarginal_i = y_i − (α_norm + β_norm × x_norm_i)
-
-   4. Gradient updates (same formula, now numerically stable):
-      α_norm_new = α_norm + η × mean(felmarginal_i)
-      β_norm_new = β_norm + η × mean(x_norm_i × felmarginal_i)
-
-   5. Convert back to original space:
-      β_new = β_norm_new / std(x)
-      α_new = α_norm_new − β_new × mean(x)
-
-   Why this works: in normalised space mean(x_norm)=0, std(x_norm)=1,
-   so a learning rate of 0.1 is always appropriate regardless of the
-   scale or range of the original x-values.
-
-
-grad descent
-good resource:
-https://mccormickml.com/2014/03/04/gradient-descent-derivation/
-═══════════════════════════════════════════════════════════════ */
 function nudgeBoth(steps = 1) {
   if (dataPoints.length < 2) return flashNudge('nudgeBtn');
 
-  //norming
-  const mx  = meanX(dataPoints);   // mean(x)
-  const sx  = stdX(dataPoints);    // std(x)
+  const mx = meanX(dataPoints);
+  const sx = stdX(dataPoints);
 
   for (let step = 0; step < steps; step++) {
     const n = dataPoints.length;
-
-    // ── Step 1: convert current parameters to normalised space ─
-    // In normalised space: ŷ = α_norm + β_norm × x_norm
-    // where x_norm = (x − mx) / sx
-    // so α_norm = currentA + currentB × mx
-    //    β_norm = currentB × sx
-
-    //norm a and b. 
-    //This works since y = a + b * x
-    //can be derived to y = a + b * mx + b * sx * xNorm
     const aNorm = currentA + currentB * mx;
     const bNorm = currentB * sx;
 
-    // ── Step 2: compute felmarginaler in normalised space ──────
-    let sumErrors         = 0;  // Σ(y_i − ŷ_i)
-    let sumWeightedErrors = 0;  // Σ(x_norm_i × felmarginal_i)
+    let sumErrors = 0;
+    let sumWeightedErrors = 0;
 
     dataPoints.forEach(point => {
-      const xNorm       = (point.x - mx) / sx;  //norming with SD so that it's comparable
-      const predicted   = aNorm + bNorm * xNorm; //the model, y=a+b*x, with normed a,b and x
-      const felmarginal = point.y - predicted;  // y doesn't need to be normed
-      sumErrors         += felmarginal; //accounts for intercept, the intercept is additive, y=a+...
-      sumWeightedErrors += xNorm * felmarginal; // *xNorm so that errors close to the intercept weigh less. You can derive it and check, too. 
-      //This shouldn't account for intercept errors, just slope errors.
+      const xNorm       = (point.x - mx) / sx;
+      const predicted   = aNorm + bNorm * xNorm;
+      const felmarginal = point.y - predicted;
+      sumErrors         += felmarginal;
+      sumWeightedErrors += xNorm * felmarginal;
     });
 
-    //averaging so it's the error on average
-    const meanError         = sumErrors         / n;  // for α_norm
-    const meanWeightedError = sumWeightedErrors / n;  // for β_norm
+    const meanError         = sumErrors         / n;
+    const meanWeightedError = sumWeightedErrors / n;
 
-    //update with a learning rate
     const aNormNew = aNorm + LEARN_RATE * meanError;
     const bNormNew = bNorm + LEARN_RATE * meanWeightedError;
 
-    // ── Step 4: convert back to original space ─────────────────
-    //convert back so it displays correctly. You can derive this, too.
-    // β = β_norm / std(x)
-    // α = α_norm − β × mean(x)
     currentB = bNormNew / sx;
     currentA = aNormNew - currentB * mx;
   }
 
   syncSlidersFromState();
+  syncManualInputs();
   flashNudge('nudgeBtn');
   draw();
 }
 
-
-/* ═══════════════════════════════════════════════════════════════
-   updateNudgeExamples()
-═══════════════════════════════════════════════════════════════ */
 function updateNudgeExamples() {
   const exA = document.getElementById('exampleAlpha');
-  const exB = { innerHTML: '', textContent: '' };
   if (!exA) return;
 
   const pts = dataPoints;
@@ -1374,16 +1264,13 @@ function updateNudgeExamples() {
     `<b>Skärningspunkt</b> — genomsnitt av (verkligt − förutsagt):<br>` +
     `&nbsp;&nbsp;Summa av felmarginaler = ${fmt(sumErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumErrors)} / ${n} = <b>${fmt(meanError)}</b><br><br>` +
-
     `<b>Lutning</b> — genomsnitt av (verkligt − förutsagt) × x:<br>` +
     `&nbsp;&nbsp;Summa av (x × felmarginal) = ${fmt(sumWeightedErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumWeightedErrors)} / ${n} = <b>${fmt(meanWeightedError)}</b><br><br>` +
-
     `<b>Uppdatering</b> — formel: ny = gammal + inlärningshastighet × genomsnitt<br>` +
     `&nbsp;&nbsp;Ny skärningspunkt = <b>${fmt(aNext)}</b><br>` +
     `&nbsp;&nbsp;Ny lutning = <b>${fmt(bNext)}</b>`;
 }
-
 
 function flashNudge(id) {
  const btn = document.getElementById(id);
@@ -1423,7 +1310,12 @@ function updatePrediction() {
  draw();
 }
 
-function syncPredictLabels() { /* predict removed */ }
+/* ─────────────────────────────────────────────────────────────
+   PASTE PARSING
+   FIX: European decimal commas in tab-separated data.
+   Strategy: if the separator between columns is a tab, treat
+   commas within each cell as decimal separators, not delimiters.
+───────────────────────────────────────────────────────────── */
 document.getElementById('pasteArea').addEventListener('paste', function(e) {
  e.preventDefault();
  const text = (e.clipboardData || window.clipboardData).getData('text');
@@ -1450,17 +1342,29 @@ function parsePaste(text) {
  let added = 0;
  lines.forEach(line => {
    if (!line.trim()) return;
-   const parts = line.split(/\t|;|,/);
+
+   // Detect separator: prefer tab, then semicolon, then comma
+   let parts;
+   if (/\t/.test(line)) {
+     // Tab-separated: commas inside cells are decimal separators
+     parts = line.split('\t').map(s => s.trim().replace(',', '.'));
+   } else if (/;/.test(line)) {
+     // Semicolon-separated (common European CSV): commas are decimal
+     parts = line.split(';').map(s => s.trim().replace(',', '.'));
+   } else {
+     // Comma-separated: commas are delimiters (no decimal comma support here)
+     parts = line.split(',').map(s => s.trim());
+   }
+
    if (parts.length >= 2) {
-     const x = parseFloat(parts[0].replace(',','.').trim());
-     const y = parseFloat(parts[1].replace(',','.').trim());
+     const x = parseFloat(parts[0]);
+     const y = parseFloat(parts[1]);
      if (!isNaN(x) && !isNaN(y)) { addRow(x, y); added++; }
    }
  });
  if (added > 0) plotData();
 }
 
-/* Column name sync */
 function syncAllNames() {
  const xName = document.getElementById('xName').value || 'X';
  const yName = document.getElementById('yName').value || 'Y';
@@ -1482,65 +1386,44 @@ document.getElementById('yName').addEventListener('input', function() {
  draw();
 });
 
-/* Seed blank rows */
 addRow(); addRow(); addRow(); addRow();
 
 /* ═══════════════════════════════════════════════════════════════
-   FIT QUALITY — calcFit()
+   FIT QUALITY
 ═══════════════════════════════════════════════════════════════ */
 function calcFit(pts, a, b) {
   if (pts.length === 0) return null;
-
-  let sumAbsoluteError = 0;
-  pts.forEach(point => {
-    const predicted      = a + b * point.x;
-    const absoluteError  = Math.abs(predicted - point.y);
-    sumAbsoluteError    += absoluteError;
-  });
-  const mae = sumAbsoluteError / pts.length;
-
-  const yMax   = Math.max(...pts.map(p => p.y));
-  const yMin   = Math.min(...pts.map(p => p.y));
+  let sumAbs = 0;
+  pts.forEach(p => { sumAbs += Math.abs((a + b * p.x) - p.y); });
+  const mae = sumAbs / pts.length;
+  const yMax = Math.max(...pts.map(p => p.y));
+  const yMin = Math.min(...pts.map(p => p.y));
   const yRange = yMax - yMin;
-
   if (yRange === 0) return 100;
-
   return Math.max(0, 100 - (mae / yRange) * 100);
 }
 
 function updateFitBar(pts, a, b) {
-  const bar = document.getElementById('fitBar');
   if (pts.length < 2) { updateErrorPanel([], a, b); return; }
-
   const score = calcFit(pts, a, b);
-  const pct   = score.toFixed(0);
-
-  document.getElementById('fitFill').style.width   = pct + '%';
-  document.getElementById('fitScore').textContent  = pct + '%';
-
+  const pct = score.toFixed(0);
+  document.getElementById('fitFill').style.width  = pct + '%';
+  document.getElementById('fitScore').textContent = pct + '%';
   let color, txt;
   if      (score >= 85) { color = '#0a7c6e'; txt = ' Utmärkt passning!'; }
   else if (score >= 65) { color = '#a07500'; txt = ' Bra, fortsätt justera!'; }
   else if (score >= 40) { color = '#c45f18'; txt = ' Ganska långt ifrån…'; }
   else                  { color = '#b5366a'; txt = ' Flytta reglagen mer!'; }
-
   document.getElementById('fitFill').style.background = color;
   document.getElementById('fitScore').style.color      = color;
   document.getElementById('fitMsg').textContent        = txt;
-
   updateErrorPanel(pts, a, b);
 }
 
-
-/* ═══════════════════════════════════════════════════════════════
-   ERROR PANEL — updateErrorPanel()
-═══════════════════════════════════════════════════════════════ */
 function updateErrorPanel(pts, a, b) {
   if (pts.length < 2) return;
-
   const xName = document.getElementById('xName').value || 'X';
   const yName = document.getElementById('yName').value || 'Y';
-
   const cxEl = document.getElementById('errColX');
   const cyEl = document.getElementById('errColY');
   if (cxEl) cxEl.innerHTML = `<span class="dyn-xname">${xName}</span>`;
@@ -1549,33 +1432,25 @@ function updateErrorPanel(pts, a, b) {
   if (chEl) chEl.innerHTML = `<span class="dyn-yname">${yName}</span> (förutsagt)`;
 
   const rows = pts.map(point => {
-    const predicted     = a + b * point.x;
-    const felmarginal   = point.y - predicted;
-    return {
-      x:            point.x,
-      y:            point.y,
-      predicted,
-      felmarginal
-    };
+    const predicted   = a + b * point.x;
+    const felmarginal = point.y - predicted;
+    return { x: point.x, y: point.y, predicted, felmarginal };
   });
-
   const mae = rows.reduce((sum, r) => sum + Math.abs(r.felmarginal), 0) / rows.length;
-
   const score = calcFit(pts, a, b);
-
   document.getElementById('errMAE').textContent = mae.toFixed(2);
   const fitEl = document.getElementById('errFit');
-  fitEl.textContent  = score.toFixed(0) + '%';
-  fitEl.style.color  = score >= 85 ? '#0a7c6e' : score >= 65 ? '#a07500' : score >= 40 ? '#c45f18' : '#b5366a';
+  fitEl.textContent = score.toFixed(0) + '%';
+  fitEl.style.color = score >= 85 ? '#0a7c6e' : score >= 65 ? '#a07500' : score >= 40 ? '#c45f18' : '#b5366a';
 
   const container = document.getElementById('errorRows');
   container.innerHTML = '';
   rows.forEach(r => {
-    const row       = document.createElement('div');
-    row.className   = 'error-row';
+    const row = document.createElement('div');
+    row.className = 'error-row';
     const diffClass = r.felmarginal >= 0 ? 'pos' : 'neg';
     const diffSign  = r.felmarginal >= 0 ? '+' : '';
-    row.innerHTML   = `
+    row.innerHTML = `
       <span class="err-x">${fmt(r.x)}</span>
       <span class="err-y">${fmt(r.y)}</span>
       <span class="err-yhat">${fmt(r.predicted)}</span>
@@ -1627,17 +1502,14 @@ function draw() {
  return e;
  }
 
- // clip
  const defs = el('defs');
  const clip = el('clipPath', {id:'gc'});
  clip.appendChild(el('rect',{x:PAD.left,y:PAD.top,width:SVG_W-PAD.left-PAD.right,height:SVG_H-PAD.top-PAD.bottom}));
  defs.appendChild(clip);
  svg.appendChild(defs);
 
- // background
  svg.appendChild(el('rect',{x:0,y:0,width:SVG_W,height:SVG_H,fill:'#f0ede8'}));
 
- // grid
  const xStep = niceStep(xMax-xMin, 8);
  const yStep = niceStep(yMax-yMin, 8);
 
@@ -1652,7 +1524,6 @@ function draw() {
  stroke: isZero ? '#b0aaa0' : '#ddd9d2', 'stroke-width': isZero ? 1.5 : 1}));
  }
 
- // tick labels
  for(let x=Math.ceil(xMin/xStep)*xStep; x<=xMax; x=+(x+xStep).toFixed(10)) {
  const xf = +x.toFixed(6);
  if (Math.abs(xf) < xStep*0.01) continue;
@@ -1666,7 +1537,6 @@ function draw() {
  fill:'#9a9590','font-size':'10','font-family':'DM Mono,monospace'},fmtTick(yf)));
  }
 
- // axis labels
  const xName = document.getElementById('xName').value || 'X';
  const yName = document.getElementById('yName').value || 'Y';
  svg.appendChild(el('text',{x:SVG_W-PAD.right,y:SVG_H-PAD.bottom+14,'text-anchor':'end',
@@ -1674,54 +1544,39 @@ function draw() {
  svg.appendChild(el('text',{x:xS(0)+8,y:PAD.top-6,'text-anchor':'start',
  fill:'#7a7570','font-size':'13','font-family':'DM Serif Display,serif','font-style':'italic'},yName));
 
- // data points
  dataPoints.forEach(p => {
  if (p.x<xMin||p.x>xMax||p.y<yMin||p.y>yMax) return;
  const yHat = a + b*p.x;
- // residual line
  svg.appendChild(el('line',{x1:xS(p.x),y1:yS(p.y),x2:xS(p.x),y2:yS(yHat),
  stroke:'rgba(181,54,106,.3)','stroke-width':'1.5','stroke-dasharray':'3,3','clip-path':'url(#gc)'}));
- // point
  svg.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'7',fill:'rgba(181,54,106,.15)'}));
  svg.appendChild(el('circle',{cx:xS(p.x),cy:yS(p.y),r:'4.5',fill:'#b5366a',stroke:'#fff','stroke-width':'2'}));
  });
 
- // main line
  svg.appendChild(el('line',{
  x1:xS(xMin),y1:yS(a+b*xMin),x2:xS(xMax),y2:yS(a+b*xMax),
  stroke:'#0a7c6e','stroke-width':'2.5','stroke-linecap':'round','clip-path':'url(#gc)'
  }));
 
- // Prediction point
  if (predictionX !== null) {
  const px = predictionX;
  const py = a + b * px;
  if (px >= xMin && px <= xMax && py >= yMin && py <= yMax) {
- svg.appendChild(el('line', {
- x1: xS(px), y1: yS(0), x2: xS(px), y2: yS(py),
- stroke: '#6346b0', 'stroke-width': '1.5', 'stroke-dasharray': '4,3',
- 'clip-path': 'url(#gc)'
- }));
- svg.appendChild(el('line', {
- x1: xS(xMin), y1: yS(py), x2: xS(px), y2: yS(py),
- stroke: '#6346b0', 'stroke-width': '1.5', 'stroke-dasharray': '4,3',
- 'clip-path': 'url(#gc)'
- }));
- svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '13', fill: 'rgba(99,70,176,.12)' }));
- svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '7', fill: 'rgba(99,70,176,.25)' }));
- svg.appendChild(el('circle', { cx: xS(px), cy: yS(py), r: '5', fill: '#6346b0', stroke: '#fff', 'stroke-width': '2' }));
+ svg.appendChild(el('line', {x1:xS(px),y1:yS(0),x2:xS(px),y2:yS(py),stroke:'#6346b0','stroke-width':'1.5','stroke-dasharray':'4,3','clip-path':'url(#gc)'}));
+ svg.appendChild(el('line', {x1:xS(xMin),y1:yS(py),x2:xS(px),y2:yS(py),stroke:'#6346b0','stroke-width':'1.5','stroke-dasharray':'4,3','clip-path':'url(#gc)'}));
+ svg.appendChild(el('circle',{cx:xS(px),cy:yS(py),r:'13',fill:'rgba(99,70,176,.12)'}));
+ svg.appendChild(el('circle',{cx:xS(px),cy:yS(py),r:'7',fill:'rgba(99,70,176,.25)'}));
+ svg.appendChild(el('circle',{cx:xS(px),cy:yS(py),r:'5',fill:'#6346b0',stroke:'#fff','stroke-width':'2'}));
  const lx = xS(px) > SVG_W * 0.65 ? xS(px) - 12 : xS(px) + 12;
  const anchor = xS(px) > SVG_W * 0.65 ? 'end' : 'start';
  const yName2 = document.getElementById('yName').value || 'Y';
- svg.appendChild(el('text', { x: lx, y: yS(py) - 12, 'text-anchor': anchor,
- fill: '#6346b0', 'font-size': '12', 'font-family': 'DM Sans,sans-serif', 'font-weight': '700' },
- `${yName2} = ${fmt(py)}`));
+ svg.appendChild(el('text',{x:lx,y:yS(py)-12,'text-anchor':anchor,fill:'#6346b0','font-size':'12','font-family':'DM Sans,sans-serif','font-weight':'700'},`${yName2} = ${fmt(py)}`));
  }
  }
 
- // Update UI
  iVal.textContent = fmt(a);
  sVal.textContent = fmt(b);
+ /* ─── FIX: use proper Unicode minus for negative intercept ─── */
  const eq = formatEq(a, b);
  if (eqBox.textContent !== eq) {
  eqBox.textContent = eq;
@@ -1729,11 +1584,14 @@ function draw() {
  void eqBox.offsetWidth;
  eqBox.classList.add('pop');
  }
- const pf = document.getElementById('predictFormula'); if (pf) pf.textContent = eq;
+
+ // Sync manual inputs without stealing focus
+ syncManualInputs();
+
  if (predictionX !== null) {
  const yHat = a + b * predictionX;
  document.getElementById('predictResult').textContent = fmt(yHat);
- const xName = document.getElementById('xName').value || 'X';
+ const xName2 = document.getElementById('xName').value || 'X';
  const yName3 = document.getElementById('yName').value || 'Y';
  const sign = b >= 0 ? '+' : '−';
  document.getElementById('predictExplanation').innerHTML =
@@ -1748,14 +1606,19 @@ function draw() {
 function fmt(n) { return n%1===0 ? String(n) : n.toFixed(2).replace(/\.?0+$/,''); }
 function fmtTick(n) { return n%1===0 ? String(n) : n.toFixed(1); }
 
+/* ─── FIX: negative intercept now shows proper − sign ─── */
 function formatEq(a, b) {
  const xN = document.getElementById('xName').value || 'X';
  const yN = document.getElementById('yName').value || 'Y';
- const aS=fmt(a), bA=Math.abs(b), bS=fmt(bA);
- if (b===0) return `${yN} = ${aS} + 0 × ${xN}`;
- const sign = b>0 ? '+' : '−';
- if (bA===1) return `${yN} = ${aS} ${sign} ${xN}`;
- return `${yN} = ${aS} ${sign} ${bS} × ${xN}`;
+ // Format intercept: always use Unicode minus for negatives
+ const aAbs = Math.abs(a);
+ const aSign = a < 0 ? '−' : '';
+ const aStr = aSign + fmt(aAbs);
+ const bA = Math.abs(b), bS = fmt(bA);
+ if (b === 0) return `${yN} = ${aStr} + 0 × ${xN}`;
+ const sign = b > 0 ? '+' : '−';
+ if (bA === 1) return `${yN} = ${aStr} ${sign} ${xN}`;
+ return `${yN} = ${aStr} ${sign} ${bS} × ${xN}`;
 }
 
 function updateSliderBg(slider, color) {
@@ -1775,8 +1638,13 @@ function niceStep(range, maxTicks) {
  return nice * mag;
 }
 
-iSlider.addEventListener('input', () => { currentA = parseFloat(iSlider.value); draw(); });
-sSlider.addEventListener('input', () => { currentB = parseFloat(sSlider.value); draw(); });
+iSlider.addEventListener('input', () => { currentA = parseFloat(iSlider.value); syncManualInputs(); draw(); });
+sSlider.addEventListener('input', () => { currentB = parseFloat(sSlider.value); syncManualInputs(); draw(); });
+
+// Init manual inputs
+document.getElementById('manualIntercept').value = currentA;
+document.getElementById('manualSlope').value = currentB;
+
 draw();
 </script>
 </body>
