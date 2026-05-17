@@ -869,6 +869,7 @@
 
  <div style="margin-bottom:.75rem">
   <button class="btn btn-default" onclick="loadDefaultData()">Ladda exempeldata: glass &amp; temperatur</button>
+  <button class="btn btn-default" onclick="loadNonlinearData()">Ladda exempeldata: glass &amp; temperatur 2</button>
  </div>
 
  <div class="col-names">
@@ -1067,6 +1068,20 @@ function loadDefaultData() {
  ];
  data.forEach(([x, y]) => addRow(x, y));
  plotData();
+}
+
+function loadNonlinearData() {
+  document.getElementById('rowsList').innerHTML = '';
+  dataPoints = [];
+  document.getElementById('xName').value = 'Temperatur (°C)';
+  document.getElementById('yName').value = 'Glassförsäljning';
+  syncAllNames();
+ const data = [
+  [14,100],[16,60],[18,30],[20,10],[22,5],
+  [24,10],[26,30],[28,60],[30,100],[32,150]
+];
+  data.forEach(([x,y]) => addRow(x,y));
+  plotData();
 }
 
 function clearData() {
