@@ -959,11 +959,21 @@
             <summary class="nudge-info-title">Visa förklaring <span class="info-q">?</span></summary>
             <div class="nudge-info-body">
               Tänk dig att du försöker rita en linje som visar sambandet mellan temperatur och glassförsäljning. Linjen börjar fel — det är meningen! Varje knapptryckning förbättrar den lite. Exemplet nedan uppdateras i realtid.<br><br>
-              <b>1. Beräkna ny skärningspunkt</b><br>
+              <b>1. Vad betyder normalisering?</b><br>
+              När vi justerar modellen behandlar vi m och k olika — m justeras direkt, men k justeras genom att multiplicera med x.  om x är stort (som temperaturer runt 14–32) hoppar k alldeles för mycket per steg
+              
+              Vi kan moteverka detta genom att normalisera x.
+              <br><br>
+              
+              <b></b>
+              Vi gör detta genom att först dra medelvärdet av varje x — det berättar åt vilket håll värdet pekar, uppåt eller nedåt från genomsnittet. Sedan delar vi varje enhet med standardavvikelsen — det gör att "uppåt" och "nedåt" betyder samma sak oavsett om vi mäter grader eller glass.
+            </b><br>
+          </b><br>
+              <b>2. Beräkna ny skärningspunkt</b><br>
               I formeln y = kx + m är m ett plus — det adderas rakt av utan att multipliceras med något. Därför justerar vi m med genomsnittet av (verkligt – förutsagt). Tecknet på genomsnittet avgör åt vilket håll: positivt → m ökar, negativt → m minskar.<br><br>
-              <b>2. Beräkna ny lutning</b><br>
+              <b>3. Beräkna ny lutning</b><br>
               I formeln y = kx + m multipliceras k med x. Därför justerar vi k med genomsnittet av (verkligt värde − förutsagt värde) × x.<br><br>
-              <b>3. Uppdatera båda på en gång</b><br>
+              <b>4. Uppdatera båda på en gång</b><br>
               Skärningspunkten och lutningen räknas ut från samma felmarginaler och uppdateras samtidigt — annars skulle den ena förändringen störa den andra.<br><br>
               <span class="nudge-example" id="exampleAlpha">Ladda exempeldata för att se uträkningen.</span>
             </div>
@@ -1148,7 +1158,7 @@ function autoFitSuggestion(pts) {
   for (let i = 0; i < pts.length; i++) sum += pts[i].y;
   const meanY = sum / pts.length;
   currentA = meanY;
-  currentB = 0;
+  currentB = 0.01;
   syncSlidersFromState();
   syncManualInputs();
 }
@@ -1260,17 +1270,40 @@ function updateNudgeExamples() {
   const aNext    = aNormNew - bNext * mx;
 
   exA.innerHTML =
-  `<i style="font-size:.75rem;color:var(--muted)">x används normaliserat: (x − medelvärde av alla x) / standardavvikelse av alla x för att göra beräkningen stabil</i><br><br>` +
-    `<b>Skärningspunkt</b> — genomsnitt av (verkligt − förutsagt):<br>` +
-    `&nbsp;&nbsp;Summa av felmarginaler = ${fmt(sumErrors)}<br>` +
+  `<b>Steg 1 — omvandla m och k så de använder normaliserade värden</b><br>` +
+`&nbsp;&nbsp;justerat m = m + k × medelvärde av x = ${fmt(currentA)} + ${fmt(currentB)} × ${fmt(mx)} = <b>${fmt(aNorm)}</b><br>` +
+`&nbsp;&nbsp;justerat k = k × standardavvikelse av x = ${fmt(currentB)} × ${fmt(sx)} = <b>${fmt(bNorm)}</b><br>` +
+`<details style="margin:.5rem 0 .75rem 1rem">` +
+`<summary style="cursor:pointer;font-size:.78rem;color:#7a7570;font-weight:600;list-style:none;display:flex;align-items:center;gap:.4rem">` +
+  `<span style="color:#1a1714">Varifrån kom de här?</span> <span style="display:inline-flex;align-items:center;justify-content:center;background:#e8d880;border:1px solid #c8b840;border-radius:50%;width:15px;height:15px;font-size:.65rem;font-weight:700;color:#7a6010">?</span>` +
+`</summary>` +
+`<div style="font-size:.78rem;color:#7a7570;line-height:1.7;margin-top:.5rem;padding:.5rem .75rem;background:#fffbf0;border:1px solid #e8dfc8;border-radius:6px">` +
+`Det kommer från följande härledning<br>` +
+`Originallinjen: y = m + k × x<br>` +
+`Vi byter ut x mot normaliserat x = (x − medelvärde) / std:<br>` +
+`y = m + k × (x − medelvärde) / std<br>` +
+`y = (m + k × medelvärde) + (k × std) × (x − medelvärde) / std<br>` +
+`y = justerat_m + justerat_k × xNorm<br><br>` +
+`Så: justerat_m = m + k × medelvärde<br>` +
+`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;justerat_k = k × std` +
+`</div></details>` +
+    
+    `</b><br> <b>Steg 2 — beräkna hur fel y är</b><br>` +
+    `&nbsp;&nbsp;Summa av (verkligt − förutsagt) = ${fmt(sumErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumErrors)} / ${n} = <b>${fmt(meanError)}</b><br><br>` +
-    `<b>Lutning</b> — genomsnitt av (verkligt − förutsagt) × x:<br>` +
-    `&nbsp;&nbsp;Summa av (x × felmarginal) = ${fmt(sumWeightedErrors)}<br>` +
+
+    `<b>Steg 3 — beräkna hur fel x är</b><br>` +
+    `&nbsp;&nbsp;Summa av (verkligt − förutsagt) × x = ${fmt(sumWeightedErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumWeightedErrors)} / ${n} = <b>${fmt(meanWeightedError)}</b><br><br>` +
-    `<b>Uppdatering</b> — formel: ny = gammal + inlärningshastighet × genomsnitt<br>` +
-    `&nbsp;&nbsp;Ny skärningspunkt = <b>${fmt(aNext)}</b><br>` +
-    `&nbsp;&nbsp;Ny lutning = <b>${fmt(bNext)}</b>`;
-}
+
+    `<b>Steg 4 — förbättra m och k</b><br>` +
+`&nbsp;&nbsp;förbättrat m = justerat m + 0.1 × genomsnitt från steg 2 = ${fmt(aNorm)} + 0.1 × ${fmt(meanError)} = <b>${fmt(aNormNew)}</b><br>` +
+`&nbsp;&nbsp;förbättrat k = justerat k + 0.1 × genomsnitt från steg 3 = ${fmt(bNorm)} + 0.1 × ${fmt(meanWeightedError)} = <b>${fmt(bNormNew)}</b><br><br>` +
+
+    `<b>Steg 5 — konvertera tillbaka till vanliga värden</b><br>` +
+    `&nbsp;&nbsp;vanligt k = förbättrat k / standardavvikelse av x = ${fmt(bNormNew)} / ${fmt(sx)} = <b>${fmt(bNext)}</b><br>` +
+`&nbsp;&nbsp;vanligt m = förbättrat m − vanligt k × medelvärde av x = ${fmt(aNormNew)} − ${fmt(bNext)} × ${fmt(mx)} = <b>${fmt(aNext)}</b>`;
+  }
 
 function flashNudge(id) {
  const btn = document.getElementById(id);
