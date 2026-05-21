@@ -960,21 +960,24 @@
             <div class="nudge-info-body">
               Tänk dig att du försöker rita en linje som visar sambandet mellan temperatur och glassförsäljning. Linjen börjar fel — det är meningen! Varje knapptryckning förbättrar den lite. Exemplet nedan uppdateras i realtid.<br><br>
               <b>1. Vad betyder normalisering?</b><br>
-              När vi justerar modellen behandlar vi m och k olika — m justeras direkt, men k justeras genom att multiplicera med x.  om x är stort (som temperaturer runt 14–32) hoppar k alldeles för mycket per steg
-              
-              Vi kan moteverka detta genom att normalisera x.
+              När vi justerar modellen behandlar vi m och k olika — m justeras utan multiplikation, medan k justeras genom att multiplicera med x. 
+              Om x är stort (som temperaturer runt 14–32) hoppar k alldeles för mycket per steg.
+              Vi kan motverka detta genom att normalisera x.
               <br><br>
               
               <b></b>
-              Vi gör detta genom att först dra medelvärdet av varje x — det berättar åt vilket håll värdet pekar, uppåt eller nedåt från genomsnittet. Sedan delar vi varje enhet med standardavvikelsen — det gör att "uppåt" och "nedåt" betyder samma sak oavsett om vi mäter grader eller glass.
+              Man gör detta genom att först dra medelvärdet av varje x — det berättar åt vilket håll värdet pekar, uppåt eller nedåt från genomsnittet. Sedan delar vi varje enhet med standardavvikelsen — det gör att "uppåt" och "nedåt" betyder samma sak oavsett om vi mäter grader eller glass.
             </b><br>
           </b><br>
               <b>2. Beräkna ny skärningspunkt</b><br>
-              I formeln y = kx + m är m ett plus — det adderas rakt av utan att multipliceras med något. Därför justerar vi m med genomsnittet av (verkligt – förutsagt). Tecknet på genomsnittet avgör åt vilket håll: positivt → m ökar, negativt → m minskar.<br><br>
+              I formeln y = kx + m är m ett plus — det adderas rakt av utan att multipliceras med något. Därför justerar vi m med genomsnittet av (verkligt y – förutsagt y). Tecknet på genomsnittet avgör åt vilket håll: positivt → m ökar, negativt → m minskar.<br><br>
               <b>3. Beräkna ny lutning</b><br>
-              I formeln y = kx + m multipliceras k med x. Därför justerar vi k med genomsnittet av (verkligt värde − förutsagt värde) × x.<br><br>
+              I formeln y = kx + m multipliceras k med x. Därför justerar vi k med genomsnittet av (verkligt y – förutsagt y) × x.<br><br>
               <b>4. Uppdatera båda på en gång</b><br>
               Skärningspunkten och lutningen räknas ut från samma felmarginaler och uppdateras samtidigt — annars skulle den ena förändringen störa den andra.<br><br>
+              <b>5. Justera tillbaka till orginella värden</b><br>
+          Vi justerar tillbaka från normaliseringen så vi kan se modellen med sin ursprungliga skala. Eftersom y inte är normaliserat 
+          behövs detta bara för att visa att de normaliserade värden kan förvandlas tillbaka. I en verklig modell görs inte detta steg<br><br>
               <span class="nudge-example" id="exampleAlpha">Ladda exempeldata för att se uträkningen.</span>
             </div>
           </details>
@@ -1270,7 +1273,8 @@ function updateNudgeExamples() {
   const aNext    = aNormNew - bNext * mx;
 
   exA.innerHTML =
-  `<b>Steg 1 — omvandla m och k så de använder normaliserade värden</b><br>` +
+  `<b>Steg 1 — omvandla m och k så de använder normaliserade värden</b><br></b><br>` +
+  `<b>Vanligtvis behöver vi bara justera x, men eftersom vi vill visa att både m och k kan förvandlas tillbaka till sin ursprunliga skala behöver vi använda följande metod:</b><br>` +
 `&nbsp;&nbsp;justerat m = m + k × medelvärde av x = ${fmt(currentA)} + ${fmt(currentB)} × ${fmt(mx)} = <b>${fmt(aNorm)}</b><br>` +
 `&nbsp;&nbsp;justerat k = k × standardavvikelse av x = ${fmt(currentB)} × ${fmt(sx)} = <b>${fmt(bNorm)}</b><br>` +
 `<details style="margin:.5rem 0 .75rem 1rem">` +
@@ -1278,22 +1282,22 @@ function updateNudgeExamples() {
   `<span style="color:#1a1714">Varifrån kom de här?</span> <span style="display:inline-flex;align-items:center;justify-content:center;background:#e8d880;border:1px solid #c8b840;border-radius:50%;width:15px;height:15px;font-size:.65rem;font-weight:700;color:#7a6010">?</span>` +
 `</summary>` +
 `<div style="font-size:.78rem;color:#7a7570;line-height:1.7;margin-top:.5rem;padding:.5rem .75rem;background:#fffbf0;border:1px solid #e8dfc8;border-radius:6px">` +
-`Det kommer från följande härledning<br>` +
+`De härleds ur det vanliga sättet att normalisera x:<br>` +
 `Originallinjen: y = m + k × x<br>` +
-`Vi byter ut x mot normaliserat x = (x − medelvärde) / std:<br>` +
-`y = m + k × (x − medelvärde) / std<br>` +
-`y = (m + k × medelvärde) + (k × std) × (x − medelvärde) / std<br>` +
+`Vi byter ut x mot normaliserat x = (x − medelvärde) / standardavvikelse:<br>` +
+`y = m + k × (x − medelvärde) / standardavvikelse<br>` +
+`y = (m + k × medelvärde) + (k × standardavvikelse) × (x − medelvärde) / standardavvikelse<br>` +
 `y = justerat_m + justerat_k × xNorm<br><br>` +
 `Så: justerat_m = m + k × medelvärde<br>` +
-`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;justerat_k = k × std` +
+`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;justerat_k = k × standardavvikelse` +
 `</div></details>` +
     
-    `</b><br> <b>Steg 2 — beräkna hur fel y är</b><br>` +
-    `&nbsp;&nbsp;Summa av (verkligt − förutsagt) = ${fmt(sumErrors)}<br>` +
+    `</b><br> <b>Steg 2 — beräkna hur mycket m måste justeras</b><br>` +
+    `&nbsp;&nbsp;Summa av (verkligt y – förutsagt y) = ${fmt(sumErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumErrors)} / ${n} = <b>${fmt(meanError)}</b><br><br>` +
 
-    `<b>Steg 3 — beräkna hur fel x är</b><br>` +
-    `&nbsp;&nbsp;Summa av (verkligt − förutsagt) × x = ${fmt(sumWeightedErrors)}<br>` +
+    `<b>Steg 3 — beräkna hur mycket k måste justeras</b><br>` +
+    `&nbsp;&nbsp;Summa av (verkligt y – förutsagt y) × x = ${fmt(sumWeightedErrors)}<br>` +
     `&nbsp;&nbsp;Genomsnitt = ${fmt(sumWeightedErrors)} / ${n} = <b>${fmt(meanWeightedError)}</b><br><br>` +
 
     `<b>Steg 4 — förbättra m och k</b><br>` +
